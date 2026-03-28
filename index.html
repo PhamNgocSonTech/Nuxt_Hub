@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học viện Vue, Pinia & Nuxt 4 Pro (AI Powered)</title>
+    
+    <!-- Tải Tailwind CSS cho UI/UX -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tải Vue 3, Vue Demi (yêu cầu của Pinia), và Pinia -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/vue-demi@0.14.6/lib/index.iife.js"></script>
+    <script src="https://unpkg.com/pinia@2.1.7/dist/pinia.iife.js"></script>
+    
+    <!-- Tải FontAwesome cho Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        vue: '#42b883',
+                        vuetxt: '#35495e',
+                        nuxt: '#00DC82',
+                        pinia: '#FFE56E',
+                        gemini: '#8b5cf6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .code-block { font-family: 'Fira Code', monospace; background: #1e293b; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; color: #e2e8f0; border: 1px solid #334155; font-size: 0.85rem; line-height: 1.4; }
+        .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+        .fade-enter-from, .fade-leave-to { opacity: 0; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .ai-content code { background: #0f172a; padding: 0.2rem 0.4rem; border-radius: 0.25rem; color: #00DC82; font-family: monospace; border: 1px solid #334155;}
+        .ai-content b, .ai-content strong { color: #fff; }
+        .ai-content ul { list-style-type: disc; margin-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+        .ai-content p { margin-bottom: 0.75rem; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <div id="app" class="h-full flex flex-col"></div>
+
+    <!-- ========================================== -->
+    <!-- TEMPLATE: LAYOUT CHÍNH                     -->
+    <!-- ========================================== -->
+    <script type="text/x-template" id="app-template">
+        <header class="glass-panel border-b border-slate-700 flex justify-between items-center p-4 shadow-lg shrink-0 z-10">
+            <div class="flex items-center gap-3">
+                <i class="fa-brands fa-vuejs text-3xl text-vue"></i>
+                <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-vue via-nuxt to-pinia hidden sm:block">
+                    Vue & Nuxt Pro Hub
+                </h1>
+                <span class="bg-gemini text-white text-xs px-2 py-0.5 rounded-full shadow-[0_0_10px_rgba(139,92,246,0.5)] border border-purple-400">✨ AI Powered</span>
+            </div>
+            
+            <div class="flex items-center gap-4 bg-slate-800 px-4 py-2 rounded-full border border-slate-700">
+                <div class="flex gap-3 text-sm items-center">
+                    <span class="text-nuxt font-bold">{{ store.completedTasks }}/10</span>
+                    <div class="h-4 w-px bg-slate-600 mx-0.5"></div>
+                    <span class="text-vue font-bold" title="Kinh nghiệm">{{ store.exp }} XP</span>
+                    <div class="h-4 w-px bg-slate-600 mx-0.5"></div>
+                    <span class="text-yellow-400 font-bold" title="Tài sản"><i class="fa-solid fa-coins"></i> {{ store.coins }}</span>
+                    <div class="h-4 w-px bg-slate-600 mx-0.5"></div>
+                    <!-- Streak Indicator -->
+                    <div class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-slate-900 border border-slate-700 cursor-help" :title="store.streakIcon.name">
+                        <i :class="[store.streakIcon.icon, store.streakIcon.color]"></i>
+                        <span class="font-bold text-white">{{ store.streak }}</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex flex-1 overflow-hidden relative">
+            <!-- Sidebar -->
+            <aside class="w-72 glass-panel border-r border-slate-700 flex flex-col overflow-y-auto shrink-0 z-20">
+                <!-- KHU VỰC ĐIỂM DANH & PHẦN THƯỞNG -->
+                <div class="p-4 border-b border-slate-700 bg-slate-800/30">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Điểm danh hằng ngày</span>
+                        <span :class="store.streakIcon.color" class="text-[10px] font-bold bg-slate-900 px-2 py-1 rounded border border-slate-700">
+                            {{ store.streakIcon.name }}
+                        </span>
+                    </div>
+
+                    <!-- Giao diện Khôi phục Chuỗi khi quên điểm danh -->
+                    <div v-if="store.needsRestore" class="mb-3 p-3 bg-red-900/30 border border-red-700/50 rounded-lg shadow-inner">
+                        <p class="text-[11px] text-red-300 mb-2 leading-relaxed"><i class="fa-solid fa-fire-extinguisher"></i> Cảnh báo! Chuỗi bị đóng băng do quên điểm danh <b>{{ store.missedDays }} ngày</b>.</p>
+                        <button @click="store.restoreStreak" :disabled="store.coins < store.restoreCost" class="w-full bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold py-2 rounded mb-1 transition disabled:opacity-50 flex justify-between px-3 items-center">
+                            <span>Mở khóa chuỗi</span>
+                            <span>{{ store.restoreCost }} Xu</span>
+                        </button>
+                        <button @click="store.checkInAfterBreak" class="w-full text-xs text-slate-400 hover:text-white py-1">
+                            Bỏ qua, Làm lại từ đầu
+                        </button>
+                    </div>
+
+                    <!-- Nút điểm danh bình thường -->
+                    <button v-else
+                        @click="store.checkIn" 
+                        :disabled="!store.canCheckIn"
+                        :class="store.canCheckIn ? 'bg-gradient-to-r from-vue to-nuxt hover:from-green-400 hover:to-green-500 text-slate-900 shadow-[0_0_10px_rgba(0,220,130,0.3)]' : 'bg-slate-700 text-slate-500 cursor-not-allowed'"
+                        class="w-full py-2.5 rounded-lg text-sm font-bold transition-all flex flex-col items-center justify-center gap-1 mb-2"
+                    >
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-check text-lg"></i>
+                            {{ store.canCheckIn ? 'Điểm danh ngay' : 'Đã điểm danh hôm nay' }}
+                        </div>
+                        <span v-if="store.canCheckIn" class="text-[10px] opacity-80">+50 XP & +{{ store.nextCoinReward }} Xu thưởng</span>
+                    </button>
+                    <p class="text-[10px] text-slate-500 text-center mt-2" v-if="!store.needsRestore">Giữ chuỗi liên tiếp để nhận thưởng XU cao hơn (1->6)! Dùng XU để cứu chuỗi nếu lỡ quên.</p>
+                </div>
+
+                <div class="p-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Lộ trình học tập</div>
+                <nav class="flex-1 flex flex-col gap-1 px-2 pb-4">
+                    <button v-for="tab in tabs" :key="tab.id"
+                        @click="activeTab = tab.id"
+                        :class="['flex items-center justify-between px-4 py-3 rounded-lg text-left transition-all', 
+                                 activeTab === tab.id ? tab.color + ' bg-slate-800 shadow-md border border-slate-700' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white']">
+                        <div class="flex items-center gap-3">
+                            <i :class="tab.icon + ' w-5 text-center'"></i>
+                            <span class="font-medium text-sm">{{ tab.name }}</span>
+                        </div>
+                        <i v-if="store.completed.includes(tab.id)" class="fa-solid fa-circle-check text-green-500 text-xs"></i>
+                    </button>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1 overflow-y-auto p-6 lg:p-10 relative bg-[#0B1121]">
+                <Transition name="fade" mode="out-in">
+                    <component :is="activeComponent"></component>
+                </Transition>
+            </main>
+
+            <!-- ✨ AI Modal (Global) -->
+            <Transition name="fade">
+                <div v-if="store.aiModalOpen" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div class="bg-slate-800 border border-slate-600 rounded-xl shadow-[0_0_30px_rgba(139,92,246,0.2)] w-full max-w-2xl flex flex-col max-h-[80vh]">
+                        <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-900/80 rounded-t-xl">
+                            <h3 class="font-bold text-lg text-purple-400 flex items-center gap-2">
+                                <i v-if="store.aiLoading" class="fa-solid fa-circle-notch fa-spin"></i>
+                                <i v-else class="fa-solid fa-wand-magic-sparkles"></i>
+                                {{ store.aiTitle }}
+                            </h3>
+                            <button @click="store.aiModalOpen = false" class="text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark text-xl"></i></button>
+                        </div>
+                        <div class="p-6 overflow-y-auto text-slate-200 leading-relaxed text-sm ai-content">
+                            <div v-if="store.aiLoading" class="flex flex-col items-center justify-center py-10 text-slate-400 gap-4">
+                                <i class="fa-solid fa-microchip text-4xl text-gemini animate-pulse"></i>
+                                <p>Gemini đang phân tích code của bạn...</p>
+                            </div>
+                            <div v-else v-html="store.aiResponse"></div>
+                        </div>
+                    </div>
+                </div>
+            </Transition>
+        </div>
+    </script>
+
+    <!-- ========================================== -->
+    <!-- 1. VUE BASIC: COMPOSITION VS OPTIONS       -->
+    <!-- ========================================== -->
+    <script type="text/x-template" id="vue-basic-template">
+        <div class="max-w-6xl mx-auto space-y-8">
+            <h2 class="text-3xl font-bold text-vue"><i class="fa-brands fa-vuejs"></i> 1. Vue API Styles & Directives</h2>
+            <p class="text-slate-400">Khởi đầu của Vue. Hiện nay <code class="text-vue">Composition API (&lt;script setup&gt;)</code> là tiêu chuẩn bắt buộc trong các dự án mới và Nuxt.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="glass-panel p-6 rounded-xl border border-red-900/30">
+                    <h3 class="font-bold text-lg text-red-400 border-b border-red-900/50 pb-2 mb-4">Cách cũ: Options API</h3>
+                    <ul class="text-sm space-y-2 text-slate-300 list-disc ml-4 mb-4">
+                        <li>Logic bị phân mảnh vào các block <code>data()</code>, <code>methods</code>, <code>computed</code>.</li>
+                        <li>Dễ học ban đầu, nhưng cực kỳ khó bảo trì khi file lớn. Khó tái sử dụng.</li>
+                    </ul>
+                    <pre class="code-block text-xs border-red-900/50">export default {
+  data() { return { count: 0 } },
+  methods: { add() { this.count++ } }
+}</pre>
+                </div>
+                <div class="glass-panel p-6 rounded-xl border border-vue/30 shadow-[0_0_15px_rgba(66,184,131,0.1)]">
+                    <h3 class="font-bold text-lg text-vue border-b border-vue/30 pb-2 mb-4">Tiêu chuẩn mới: Composition API</h3>
+                    <ul class="text-sm space-y-2 text-slate-300 list-disc ml-4 mb-4">
+                        <li>Sử dụng cú pháp <code>&lt;script setup&gt;</code> vô cùng ngắn gọn.</li>
+                        <li>Gom nhóm logic theo <b>Tính năng</b>, tái sử dụng dễ dàng qua <i>Composables</i>.</li>
+                    </ul>
+                    <pre class="code-block text-xs border-vue/50">&lt;script setup&gt;
+import { ref } from 'vue'
+const count = ref(0)
+const add = () => count.value++
+&lt;/script&gt;</pre>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-panel p-6 rounded-xl space-y-6">
+                    <div>
+                        <h3 class="font-bold text-lg border-b border-slate-700 pb-2 mb-4">Thực hành Directives (<code>v-model</code>, <code>v-for</code>)</h3>
+                        <input v-model="newItem" @keyup.enter="addItem" placeholder="Nhập tên món đồ..." class="w-full bg-slate-900 border border-slate-600 rounded px-4 py-2 text-white outline-none focus:border-vue">
+                        <button @click="addItem" class="w-full bg-slate-700 hover:bg-slate-600 mt-2 py-2 rounded text-sm transition">Thêm vào giỏ</button>
+                    </div>
+                    <div>
+                        <ul class="space-y-2 mb-4">
+                            <li v-for="(item, index) in items" :key="index" class="flex justify-between items-center bg-slate-800 p-2 rounded border border-slate-700">
+                                <span>{{ item }}</span>
+                                <button @click="removeItem(index)" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-trash"></i></button>
+                            </li>
+                        </ul>
+                        <div v-if="items.length === 0" class="text-yellow-500 text-sm p-3 bg-yellow-900/20 border border-yellow-700/50 rounded">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Giỏ hàng trống!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative group h-full">
+                    <button @click="store.explainCode($refs.codeBlock.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
+                    </button>
+                    <pre ref="codeBlock" class="code-block h-full pt-12">
+<span class="text-slate-500">&lt;script setup&gt;</span>
+import { ref, computed } from 'vue'
+
+<span class="text-slate-500">// Khai báo biến phản ứng bằng ref()</span>
+const newItem = <span class="text-vue">ref</span>('')
+const items = <span class="text-vue">ref</span>(['Bàn phím', 'Chuột'])
+
+function addItem() {
+  if(newItem.value) {
+    items.value.push(newItem.value)
+    newItem.value = '' <span class="text-slate-500">// Tự động reset input</span>
+  }
+}
+<span class="text-slate-500">&lt;/script&gt;</span>
+
+<span class="text-slate-500">&lt;template&gt;</span>
+  <span class="text-slate-500">&lt;!-- Two-way binding với v-model --&gt;</span>
+  &lt;input <span class="text-vue">v-model</span>="newItem" /&gt;
+  
+  &lt;ul&gt;
+    &lt;li <span class="text-vue">v-for</span>="(item, i) in items" :key="i"&gt;{{ item }}&lt;/li&gt;
+  &lt;/ul&gt;
+<span class="text-slate-500">&lt;/template&gt;</span></pre>
+                </div>
+            </div>
+            
+            <button @click="store.markCompleted('vue-basic', 100)" class="bg-vue text-slate-900 font-bold px-6 py-2 rounded-lg hover:bg-green-400 mt-6">Hoàn thành Bài 1 (+100 XP)</button>
+        </div>
+    </script>
+
+    <!-- ========================================== -->
+    <!-- 2. VUE COMPONENTS: PROPS, EMITS, SLOTS     -->
+    <!-- ========================================== -->
+    <script type="text/x-template" id="vue-components-template">
+        <div class="max-w-6xl mx-auto space-y-8">
+            <h2 class="text-3xl font-bold text-vue"><i class="fa-solid fa-cubes"></i> 2. Vue Components: Props, Emits & Slots</h2>
+            <p class="text-slate-400">Cách tách nhỏ giao diện để <b>tái sử dụng</b>. Component Cha và Con giao tiếp với nhau bằng Props/Emits, và chia sẻ HTML bằng Slots.</p>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Vùng mô phỏng thực tế -->
+                <div class="glass-panel p-6 rounded-xl space-y-6 bg-slate-800/50">
+                    <h3 class="font-bold text-vue mb-2 border-b border-slate-700 pb-2">Parent Component (Giao diện gốc)</h3>
+                    <div class="text-sm bg-slate-900 p-3 rounded">Số lượt Like nhận từ con: <strong class="text-vue text-lg">{{ likesCount }}</strong></div>
+                    
+                    <div class="mt-4 p-5 border-2 border-dashed border-blue-500/50 bg-slate-800 rounded-lg relative">
+                        <span class="absolute -top-3 left-4 bg-blue-600 text-xs px-2 py-1 rounded">CardComponent.vue (Con)</span>
+                        <h4 class="font-bold text-lg mb-2">{{ parentCardTitle }}</h4> <span class="text-xs text-slate-400">(Truyền bằng Props)</span>
+                        
+                        <div class="bg-slate-700 p-3 mt-2 rounded border-l-4 border-vue text-sm">
+                            <em>Đây là nội dung được truyền vào thông qua <b>&lt;slot&gt;</b> từ Component Cha!</em>
+                        </div>
+
+                        <button @click="emitLike" class="mt-4 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded text-sm transition">
+                            <i class="fa-solid fa-thumbs-up"></i> Gửi Like lên Cha (Emit)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="relative group h-full">
+                    <button @click="store.explainCode($refs.codeBlock.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
+                    </button>
+                    <pre ref="codeBlock" class="code-block h-full pt-12">
+<span class="text-slate-500">&lt;!-- 📦 ChildCard.vue (Component Con) --&gt;</span>
+<span class="text-slate-500">&lt;script setup&gt;</span>
+<span class="text-slate-500">// 1. Nhận dữ liệu text từ Cha (Props)</span>
+const props = <span class="text-vue">defineProps</span>(['title'])
+
+<span class="text-slate-500">// 2. Định nghĩa sự kiện gửi lên Cha (Emits)</span>
+const emit = <span class="text-vue">defineEmits</span>(['likeAction'])
+<span class="text-slate-500">&lt;/script&gt;</span>
+
+<span class="text-slate-500">&lt;template&gt;</span>
+  &lt;div class="card"&gt;
+    &lt;h3&gt;{{ title }}&lt;/h3&gt;
+    <span class="text-slate-500">&lt;!-- 3. SLOT: Lỗ hổng để nhét HTML từ Cha vào --&gt;</span>
+    <span class="text-vue">&lt;slot&gt;</span>Nội dung mặc định nếu Cha ko truyền<span class="text-vue">&lt;/slot&gt;</span>
+    
+    &lt;button @click="emit('likeAction')"&gt;Like&lt;/button&gt;
+  &lt;/div&gt;
+<span class="text-slate-500">&lt;/template&gt;</span>
+
+<span class="text-slate-500">------------------------------------</span>
+<span class="text-slate-500">&lt;!-- 🏠 Parent.vue (Sử dụng tái sử dụng) --&gt;</span>
+<span class="text-slate-500">&lt;template&gt;</span>
+  &lt;<span class="text-blue-400">ChildCard</span> <span class="text-vue">title</span>="Thẻ số 1" <span class="text-vue">@likeAction</span>="handleLike"&gt;
+    &lt;p&gt;HTML được nhét vào Slot nè!&lt;/p&gt;
+  &lt;/<span class="text-blue-400">ChildCard</span>&gt;
+<span class="text-slate-500">&lt;/template&gt;</span></pre>
+                </div>
+            </div>
+            
+            <button @click="store.markCompleted('vue-components', 150)" class="bg-vue text-slate-900 font-bold px-6 py-2 rounded-lg hover:bg-green-400">Hoàn thành Bài 2 (+150 XP)</button>
+        </div>
+    </script>
+
+    <!-- ========================================== -->
+    <!-- 3. VUE ADVANCED: WATCHERS & LIFECYCLE      -->
+    <!-- ========================================== -->
+    <script type="text/x-template" id="vue-adv-template">
+        <div class="max-w-6xl mx-auto space-y-8">
+            <h2 class="text-3xl font-bold text-vue"><i class="fa-solid fa-arrows-spin"></i> 3. Vue: Lifecycle & Watchers</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Giải thích Lifecycle -->
+                <div class="col-span-1 md:col-span-3 glass-panel p-6 rounded-xl border border-slate-700">
+                    <h3 class="font-bold text-lg mb-4 text-white">Vòng đời của Component (Lifecycle Hooks)</h3>
+                    <div class="flex flex-col md:flex-row gap-4 justify-between text-sm">
+                        <div class="flex-1 bg-slate-800 p-4 rounded border-l-4 border-slate-500">
+                            <code class="text-vue font-bold">onBeforeMount</code><br>
+                            <span class="text-slate-400">Đã setup xong Logic, nhưng chưa vẽ UI lên màn hình.</span>
+                        </div>
+                        <div class="flex-1 bg-slate-800 p-4 rounded border-l-4 border-green-500">
+                            <code class="text-vue font-bold">onMounted</code><br>
+                            <span class="text-slate-400">UI đã vẽ xong. Thường dùng để <b>Fetch API</b> hoặc khởi tạo thư viện ngoài.</span>
+                        </div>
+                        <div class="flex-1 bg-slate-800 p-4 rounded border-l-4 border-red-500">
+                            <code class="text-vue font-bold">onUnmounted</code><br>
+                            <span class="text-slate-400">Khi Component bị xóa khỏi DOM. Bắt buộc dùng để dọn dẹp biến tránh Memory Leak.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-panel p-6 rounded-xl space-y-6">
+                    <div>
+                        <h3 class="font-bold text-lg border-b border-slate-700 pb-2 mb-4">Thực hành <code>watch()</code></h3>
+                        <p class="text-sm text-slate-400 mb-4"><code>watch</code> dùng để theo dõi biến. Ví dụ: Giới hạn âm lượng không quá 100.</p>
+                        
+                        <div class="flex items-center gap-4">
+                            <button @click="volume -= 10" class="bg-slate-700 p-2 rounded w-10 hover:bg-slate-600">-</button>
+                            <div class="flex-1 bg-slate-900 h-4 rounded-full overflow-hidden">
+                                <div class="bg-vue h-full transition-all" :style="`width: ${volume}%`"></div>
+                            </div>
+                            <button @click="volume += 15" class="bg-vue text-slate-900 font-bold p-2 rounded w-10 hover:bg-green-400">+</button>
+                            <span class="font-bold w-12 text-right">{{ volume }}%</span>
+                        </div>
+                        <p v-if="warning" class="text-red-400 text-sm mt-2"><i class="fa-solid fa-bell"></i> Cảnh báo Watcher: {{ warning }}</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg border-b border-slate-700 pb-2 mb-4">Thực hành Lifecycle</h3>
+                        <div class="text-center p-6 bg-slate-900 rounded border border-slate-700">
+                            <span class="text-4xl font-mono text-nuxt">{{ seconds }}s</span>
+                            <p class="text-xs text-slate-500 mt-2">Đồng hồ được chạy bằng <code>onMounted</code>, sẽ hủy bằng <code>onUnmounted</code> khi đổi bài.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative group h-full">
+                    <button @click="store.explainCode($refs.codeBlock.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
+                    </button>
+                    <pre ref="codeBlock" class="code-block h-full pt-12">
+<span class="text-slate-500">&lt;script setup&gt;</span>
+import { ref, watch, onMounted, onUnmounted } from 'vue'
+
+const volume = ref(50)
+const warning = ref('')
+
+<span class="text-slate-500">// Theo dõi sự thay đổi của biến volume</span>
+<span class="text-vue">watch</span>(volume, (newValue) => {
+  if (newValue > 100) {
+    volume.value = 100
+    warning.value = 'Quá lớn!'
+  }
+})
+
+let timerId
+<span class="text-vue">onMounted</span>(() => {
+  timerId = setInterval(() => { /* Tăng giây */ }, 1000)
+})
+
+<span class="text-vue">onUnmounted</span>(() => {
+  <span class="text-slate-500">// BẮT BUỘC: Dọn dẹp để tránh rò rỉ bộ nhớ</span>
+  clearInterval(timerId)
+})
+<span class="text-slate-500">&lt;/script&gt;</span></pre>
+                </div>
+            </div>
+            <button @click="store.markCompleted('vue-adv', 150)" class="bg-vue text-slate-900 font-bold px-6 py-2 rounded-lg hover:bg-green-400">Hoàn thành Bài 3 (+150 XP)</button>
+        </div>
+    </script>
+
+    <!-- ========================================== -->
+    <!-- 4. VUE ROUTER: NAVIGATION & GUARDS         -->
+    <!-- ========================================== -->
+    <script type="text/x-template" id="vue-router-template">
+        <div class="max-w-6xl mx-auto space-y-8">
+            <h2 class="text-3xl font-bold text-vue"><i class="fa-solid fa-route"></i> 4. Vue Router: Navigation & Guards</h2>
+            <p class="text-slate-400">Quản lý đường dẫn (URL) cho các ứng dụng một trang (SPA). Nuxt đã tích hợp sẵn thư viện này.</p>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Vùng mô phỏng Router -->
+                <div class="glass-panel p-6 rounded-xl space-y-4 relative">
+                    <div class="absolute top-2 right-4 text-xs font-mono text-slate-500">URL Ảo: <span class="text-white">localhost:3000{{ currentPath }}</span></div>
+                    
+                    <h3 class="font-bold border-b border-slate-700 pb-2 mt-4">Điều hướng & Middleware (Guards)</h3>
+                    
+                    <div class="flex items-center gap-3 bg-slate-900 p-3 rounded border border-slate-700 mb-6">
+                        <span class="text-sm text-slate-400">Trạng thái:</span>
+                        <span :class="isLoggedIn ? 'text-green-400 font-bold' : 'text-red-400 font-bold'">{{ isLoggedIn ? '✅ Đã đăng nhập' : '❌ Chưa đăng nhập' }}</span>
+                        <button @click="isLoggedIn = !isLoggedIn" class="ml-auto bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-xs transition">
+                            Cấp quyền giả lập
+                        </button>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button @click="navigate('/')" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded text-sm transition font-bold">
+                            <i class="fa-solid fa-house"></i> Về Home
+                        </button>
+                        <button @click="navigate('/dashboard')" class="bg-blue-900/40 hover:bg-blue-900 border border-blue-700 px-4 py-2 rounded text-sm transition text-blue-200 font-bold">
+                            <i class="fa-solid fa-lock"></i> Vào Dashboard (Auth)
+                        </button>
+                    </div>
+
+                    <div v-if="routerError" class="p-3 bg-red-900/30 border border-red-700/50 text-red-400 rounded text-sm mt-4 animate-pulse">
+                        <i class="fa-solid fa-shield-halved"></i> <b>Router Guard kích hoạt:</b> {{ routerError }}
+                    </div>
+                </div>
+
+                <div class="relative group h-full">
+                    <button @click="store.explainCode($refs.codeBlock.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
+                    </button>
+                    <pre ref="codeBlock" class="code-block h-full pt-12">
+import { createRouter, createWebHistory } from 'vue-router'
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    { path: '/', component: Home },
+    <span class="text-slate-500">// Khai báo route cần bảo vệ qua thuộc tính meta</span>
+    { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true } }
+  ]
+})
+
+<span class="text-slate-500">// --- NAVIGATION GUARDS (Bảo vệ Route toàn cục) ---</span>
+<span class="text-vue">router.beforeEach</span>((to, from, next) => {
+  const isAuth = checkLogin() 
+
+  if (to.meta.requiresAuth && !isAuth) {
+    next('/login') <span class="text-slate-500">// Điều hướng cưỡng bức về Login</span>
+  } else {
+    next() <span class="text-slate-500">// Cho phép đi tiếp</span>
+  }
+})
+
+<span class="text-slate-500">// Chuyển trang bằng code (Programmatic Navigation)</span>
+function goToDashboard() {
+  <span class="text-vue">router.push</span>('/dashboard')
+}</pre>
+                </div>
+            </div>
+            <button @click="store.markCompleted('vue-router', 150)" class="bg-vue text-slate-900 font-bold px-6 py-2 rounded-lg hover:bg-green-400">Hoàn thành Bài 4 (+150 XP)</button>
+        </div>
+    </script>
+
+    <!-- ========================================== -->
+    <!-- 5. PINIA STATE MANAGEMENT                  -->
+    <!-- ========================================== -->
+    <script type="text/x-template" id="pinia-template">
+        <div class="max-w-6xl mx-auto space-y-8">
+            <h2 class="text-3xl font-bold text-pinia"><i class="fa-solid fa-store"></i> 5. Pinia: 2 Cách viết & storeToRefs</h2>
+            <p class="text-slate-400">Pinia thay thế hoàn toàn Vuex. Tương tự Vue, Pinia cũng hỗ trợ 2 cú pháp: <b>Options Store</b> và <b>Setup Store</b>.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- So sánh 2 cú pháp -->
+                <div class="glass-panel p-4 rounded-xl border border-slate-700">
+                    <h3 class="font-bold text-sm text-slate-300 mb-2">Cách 1: Options Store (Cũ, dễ tiếp cận)</h3>
+                    <pre class="code-block text-xs">export const useCounter = defineStore('counter', {
+  state: () => ({ count: 0 }),
+  getters: { double: (state) => state.count * 2 },
+  actions: { increment() { this.count++ } }
+})</pre>
+                </div>
+                <div class="glass-panel p-4 rounded-xl border border-pinia/50 shadow-[0_0_15px_rgba(255,229,110,0.1)]">
+                    <h3 class="font-bold text-sm text-pinia mb-2">Cách 2: Setup Store (Mới, khuyên dùng)</h3>
+                    <pre class="code-block text-xs">export const useCounter = defineStore('counter', () => {
+  const count = ref(0)
+  const double = computed(() => count.value * 2)
+  function increment() { count.value++ }
+  return { count, double, increment }
+})</pre>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-panel p-6 rounded-xl space-y-6">
+                    <div class="p-4 bg-slate-900 border border-slate-700 rounded text-center">
+                        <p class="text-sm text-slate-400">Global State (XP):</p>
+                        <p class="text-4xl font-bold text-pinia mt-2">{{ store.exp }} XP</p>
+                    </div>
+
+                    <!-- Destructuring Warning -->
+                    <div class="mt-6 p-4 border border-yellow-700 bg-yellow-900/20 rounded-lg">
+                        <h4 class="text-yellow-500 font-bold mb-2"><i class="fa-solid fa-skull-crossbones"></i> Bẫy mất Reactivity kinh điển</h4>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            Tuyệt đối không lấy biến thẳng từ Pinia ra ngoài như vầy:<br>
+                            <code class="text-red-400 line-through bg-black px-1 rounded">const { exp } = useAppStore()</code><br>
+                            Biến <code>exp</code> sẽ thành biến tĩnh. Phải bọc qua <code>storeToRefs</code>.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="relative group h-full">
+                    <button @click="store.explainCode($refs.codeBlock.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
+                    </button>
+                    
+                    <pre ref="codeBlock" class="code-block h-full pt-12">
+<span class="text-slate-500">&lt;script setup&gt;</span>
+import { useAppStore } from '@/stores/app'
+import { <span class="text-pinia">storeToRefs</span> } from 'pinia'
+
+const store = useAppStore()
+
+<span class="text-slate-500">// ❌ SAI: Mất Reactivity. exp chỉ mang giá trị 0 tĩnh.</span>
+const { exp, level } = store 
+
+<span class="text-slate-500">// ✅ ĐÚNG: Giữ nguyên Reactivity. Bọc bởi ref()</span>
+const { exp, level } = <span class="text-pinia">storeToRefs</span>(store)
+
+<span class="text-slate-500">// Lưu ý: Với Actions (hàm) thì CÓ THỂ destructure bình thường</span>
+const { addExp } = store 
+<span class="text-slate-500">&lt;/script&gt;</span></pre>
+                </div>
+            </div>
+            
+            <button @click="store.markCompleted('pinia', 150)" class="bg-pinia text-slate-900 font-bold px-6 py-2 rounded-lg hover:bg-yellow-400">Hoàn thành Bài 5 (+150 XP)</button>
+        </div>
+    </script>
+
+    <!-- ========================================== -->
+    <!-- 6. NUXT ROUTING & LAYOUTS                  -->
+    <!-- ========================================== -->
+    <script type="text/x-template" id="nuxt-routing-template">
+        <div class="max-w-6xl mx-auto space-y-8">
+            <h2 class="text-3xl font-bold text-nuxt"><i class="fa-solid fa-folder-tree"></i> 6. Nuxt 4: Routing & Layouts</h2>
+            <p class="text-slate-400">Không cần cài `vue-router` thủ công. Nuxt tự động tạo Route từ cấu trúc thư mục <code>pages/</code>. Cấu trúc giao diện dùng chung (như Navbar/Footer) được cấu hình ở <code>layouts/</code>.</p>
+            
+            <div class="glass-panel p-6 rounded-xl">
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="md:w-1/3 bg-slate-900 rounded p-4 border border-slate-700 font-mono text-sm text-slate-400">
+                        <div class="text-white mb-2"><i class="fa-regular fa-folder-open text-yellow-500"></i> pages/</div>
+                        <div class="pl-4 space-y-2 border-l border-slate-700 ml-2">
+                            <div @click="route='/'" class="cursor-pointer hover:text-nuxt transition" :class="{'text-nuxt': route==='/'}">index.vue (/)</div>
+                            <div @click="route='/about'" class="cursor-pointer hover:text-nuxt transition" :class="{'text-nuxt': route==='/about'}">about.vue (/about)</div>
+                            <div>
+                                <i class="fa-regular fa-folder text-yellow-500"></i> users/
+                                <div class="pl-4 mt-2 space-y-2 border-l border-slate-700 ml-2">
+                                    <div @click="route='/users/123'" class="cursor-pointer hover:text-nuxt transition" :class="{'text-nuxt': route==='/users/123'}">[id].vue (Dynamic)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="md:w-2/3 border border-slate-700 rounded flex flex-col bg-slate-100 text-slate-900 relative group overflow-hidden">
+                        <button @click="store.explainCode('Giải thích về layouts/default.vue trong Nuxt và thẻ <NuxtPage>')" class="absolute top-2 right-2 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ AI Giải thích Layout
+                        </button>
+
+                        <div class="bg-slate-300 border-b border-slate-400 p-2 text-center font-bold text-xs uppercase tracking-widest text-slate-600">
+                            Navbar (layouts/default.vue)
+                        </div>
+                        <div class="p-8 flex-1 flex flex-col justify-center items-center text-center border-4 border-dashed border-nuxt/50 m-4 rounded bg-white relative">
+                            <span class="absolute top-2 left-2 text-xs text-nuxt font-bold bg-nuxt/20 px-2 py-1 rounded">&lt;NuxtPage /&gt;</span>
+                            <h1 class="text-2xl font-bold mb-2">{{ getRouteTitle(route) }}</h1>
+                            <p class="text-slate-500 text-sm">Nội dung tự động thay đổi theo Route: <code class="bg-slate-200 px-1 rounded">{{ route }}</code></p>
+                        </div>
+                        <div class="bg-slate-300 border-t border-slate-400 p-2 text-center font-bold text-xs uppercase tracking-widest text-slate-600">
+                            Footer (layouts/default.vue)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button @click="store.markCompleted('nuxt-routing', 200)" class="bg-nuxt text-slate-900 font-bold px-6 py-2 rounded-lg hover:bg-green-400">Hoàn thành Bài 6 (+200 XP)</button>
+        </div>
+    </script>
+
+    <!-- ========================================== -->
+    <!-- 7. NUXT DATA FETCHING & API                -->
+    <!-- ========================================== -->
+    <script type="text/x-template" id="nuxt-data-template">
+        <div class="max-w-6xl mx-auto space-y-8">
+            <h2 class="text-3xl font-bold text-nuxt"><i class="fa-solid fa-server"></i> 7. Nuxt 4: Data Fetching & API</h2>
+            <p class="text-slate-400">Cơ chế cực mạnh của Nuxt. Nó gọi API <b>ngay từ Server (SSR)</b> giúp trang load nhanh và tốt cho SEO.</p>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-panel p-6 rounded-xl space-y-4">
+                    <h3 class="font-bold border-b border-slate-700 pb-2">Mô phỏng <code>useFetch('/api/users')</code></h3>
+                    
+                    <div class="flex gap-2 mb-4">
+                        <button @click="fetchData(false)" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded text-sm">Gọi API Thành công</button>
+                        <button @click="fetchData(true)" class="bg-red-900/50 hover:bg-red-900 border border-red-700 px-4 py-2 rounded text-sm text-red-200">Gọi API Lỗi</button>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-700 rounded p-4 h-48 overflow-y-auto">
+                        <div v-if="pending" class="flex flex-col items-center justify-center h-full text-nuxt animate-pulse">
+                            <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-2"></i>
+                            <p>Đang tải dữ liệu từ Server...</p>
+                        </div>
+                        <div v-else-if="error" class="text-red-400 h-full flex flex-col justify-center items-center">
+                            <i class="fa-solid fa-triangle-exclamation text-3xl mb-2"></i>
+                            <p>Lỗi: {{ error.message }}</p>
+                        </div>
+                        <ul v-else-if="data" class="space-y-2">
+                            <li v-for="user in data" :key="user.id" class="p-2 bg-slate-800 rounded flex justify-between">
+                                <span>{{ user.name }}</span><span class="text-slate-400 text-sm">{{ user.role }}</span>
+                            </li>
+                        </ul>
+                        <div v-else class="text-slate-500 text-center mt-10">Chưa có dữ liệu</div>
+                    </div>
+                </div>
+
+                <div class="relative group h-full">
+                    <button @click="store.explainCode($refs.codeBlock.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
+                    </button>
+                    <pre ref="codeBlock" class="code-block h-full pt-12">
+<span class="text-slate-500">// pages/users.vue</span>
+<span class="text-slate-500">&lt;script setup&gt;</span>
+<span class="text-slate-500">// useFetch tự động quản lý pending, data, error</span>
+<span class="text-slate-500">// Nuxt tự động gọi API này trên Server lúc SSR! Không bị nháy trang.</span>
+const { data, pending, error } = await <span class="text-nuxt">useFetch</span>('/api/users')
+<span class="text-slate-500">&lt;/script&gt;</span>
+
+<span class="text-slate-500">&lt;template&gt;</span>
+  &lt;div <span class="text-vue">v-if</span>="pending"&gt;Đang tải...&lt;/div&gt;
+  &lt;div <span class="text-vue">v-else-if</span>="error"&gt;Lỗi: {{ error.message }}&lt;/div&gt;
+  &lt;ul <span class="text-vue">v-else</span>&gt;
+    &lt;li <span class="text-vue">v-for</span>="u in data" :key="u.id"&gt;{{ u.name }}&lt;/li&gt;
+  &lt;/ul&gt;
+<span class="text-slate-500">&lt;/template&gt;</span></pre>
+                </div>
+            </div>
+            <button @click="store.markCompleted('nuxt-data', 200)" class="bg-nuxt text-slate-900 font-bold px-6 py-2 rounded-lg hover:bg-green-400">Hoàn thành Bài 7 (+200 XP)</button>
+        </div>
+    </script>
+
+    <!-- ========================================== -->
+    <!-- 8. NUXT SEO & META                         -->
+    <!-- ========================================== -->
+    <script type="text/x-template" id="nuxt-seo-template">
+        <div class="max-w-6xl mx-auto space-y-8">
+            <h2 class="text-3xl font-bold text-nuxt"><i class="fa-solid fa-magnifying-glass"></i> 8. Nuxt 4: SEO & Thẻ Meta</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-panel p-6 rounded-xl space-y-6">
+                    <h3 class="font-bold border-b border-slate-700 pb-2">Thực hành <code>useHead()</code></h3>
+                    <p class="text-sm text-slate-400">Thử sửa Tiêu đề, và nhìn lên <strong>Tab Trình duyệt</strong> của bạn!</p>
+                    
+                    <div>
+                        <input v-model="pageTitle" class="w-full bg-slate-900 border border-slate-600 rounded px-4 py-2 text-white outline-none focus:border-nuxt">
+                    </div>
+
+                    <div class="bg-slate-900 p-4 rounded text-sm text-slate-400 font-mono">
+                        <span class="text-slate-500">&lt;head&gt;</span><br>
+                        &nbsp;&nbsp;&lt;title&gt;<span class="text-white">{{ pageTitle }}</span>&lt;/title&gt;<br>
+                        <span class="text-slate-500">&lt;/head&gt;</span>
+                    </div>
+                </div>
+
+                <div class="relative group h-full">
+                    <button @click="store.explainCode($refs.codeBlock.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
+                    </button>
+                    <pre ref="codeBlock" class="code-block h-full pt-12">
+<span class="text-slate-500">&lt;script setup&gt;</span>
+import { ref } from 'vue'
+const pageTitle = ref('Sản phẩm mới')
+
+<span class="text-slate-500">// Sử dụng Composable của Nuxt để đổi Head cho SEO</span>
+<span class="text-nuxt">useHead</span>({
+  title: pageTitle,
+  meta: [ { name: 'description', content: 'SEO Content' } ]
+})
+
+<span class="text-slate-500">/* HOẶC DÙNG CÚ PHÁP RÚT GỌN (Khuyên dùng): */</span>
+<span class="text-nuxt">useSeoMeta</span>({
+  title: 'My App',
+  ogTitle: 'My App - The Best',
+  description: 'This is my app'
+})
+<span class="text-slate-500">&lt;/script&gt;</span></pre>
+                </div>
+            </div>
+            <button @click="store.markCompleted('nuxt-seo', 200)" class="bg-nuxt text-slate-900 font-bold px-6 py-2 rounded-lg hover:bg-green-400">Hoàn thành Bài 8 (+200 XP)</button>
+        </div>
+    </script>
+
+    <!-- ========================================== -->
+    <!-- 9. TAILWIND CSS                            -->
+    <!-- ========================================== -->
+    <script type="text/x-template" id="tailwind-template">
+        <div class="max-w-6xl mx-auto space-y-12">
+            <div class="space-y-2">
+                <h2 class="text-3xl font-bold text-cyan-400"><i class="fa-brands fa-css3-alt"></i> 9. Tailwind CSS: Flex, Grid & Responsive</h2>
+                <p class="text-slate-400">Tailwind CSS không chỉ là màu sắc. Sức mạnh thực sự nằm ở khả năng xây dựng Layout (Flex/Grid) siêu tốc và hỗ trợ thiết kế đa màn hình (Responsive Design) trực tiếp trên file HTML của Vue.</p>
+            </div>
+
+            <!-- Flexbox Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-panel p-6 rounded-xl space-y-6">
+                    <h3 class="font-bold border-b border-slate-700 pb-2 text-cyan-200"><i class="fa-solid fa-arrows-left-right"></i> 9.1. Flexbox Layout</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm text-slate-400 mb-2">Trục dọc chính (<code>justify-...</code>):</p>
+                            <div class="flex flex-wrap gap-2">
+                                <button @click="flexJustify = 'justify-start'" :class="flexJustify==='justify-start' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">start</button>
+                                <button @click="flexJustify = 'justify-center'" :class="flexJustify==='justify-center' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">center</button>
+                                <button @click="flexJustify = 'justify-end'" :class="flexJustify==='justify-end' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">end</button>
+                                <button @click="flexJustify = 'justify-between'" :class="flexJustify==='justify-between' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">between</button>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm text-slate-400 mb-2">Trục vuông góc (<code>items-...</code>):</p>
+                            <div class="flex flex-wrap gap-2">
+                                <button @click="flexAlign = 'items-start'" :class="flexAlign==='items-start' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">start</button>
+                                <button @click="flexAlign = 'items-center'" :class="flexAlign==='items-center' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">center</button>
+                                <button @click="flexAlign = 'items-end'" :class="flexAlign==='items-end' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">end</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-slate-900 border border-slate-700 rounded h-40 overflow-hidden">
+                        <div :class="['flex', flexJustify, flexAlign, 'h-full bg-slate-800 border border-dashed border-slate-600 gap-2 p-2 transition-all duration-300']">
+                            <div class="w-12 h-12 bg-rose-500 rounded-lg flex items-center justify-center font-bold text-white shadow">1</div>
+                            <div class="w-16 h-16 bg-blue-500 rounded-lg flex items-center justify-center font-bold text-white shadow">2</div>
+                            <div class="w-12 h-12 bg-emerald-500 rounded-lg flex items-center justify-center font-bold text-white shadow">3</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative group h-full">
+                    <button @click="store.explainCode($refs.flexCode.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
+                    </button>
+                    <pre ref="flexCode" class="code-block h-full pt-12">
+<span class="text-slate-500">&lt;!-- Flexbox Container --&gt;</span>
+&lt;div class="<span class="text-cyan-400">flex {{ flexJustify }} {{ flexAlign }} gap-2</span> h-full"&gt;
+  <span class="text-slate-500">&lt;!-- Flex Items --&gt;</span>
+  &lt;div class="w-12 h-12 bg-rose-500 rounded"&gt;1&lt;/div&gt;
+  &lt;div class="w-16 h-16 bg-blue-500 rounded"&gt;2&lt;/div&gt;
+  &lt;div class="w-12 h-12 bg-emerald-500 rounded"&gt;3&lt;/div&gt;
+&lt;/div&gt;</pre>
+                </div>
+            </div>
+
+            <!-- CSS Grid Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-panel p-6 rounded-xl space-y-6">
+                    <h3 class="font-bold border-b border-slate-700 pb-2 text-cyan-200"><i class="fa-solid fa-border-all"></i> 9.2. CSS Grid Layout</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm text-slate-400 mb-2">Số cột hiển thị (<code>grid-cols-...</code>):</p>
+                            <div class="flex gap-2">
+                                <button @click="gridCols = 'grid-cols-2'" :class="gridCols==='grid-cols-2' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">2 cột</button>
+                                <button @click="gridCols = 'grid-cols-3'" :class="gridCols==='grid-cols-3' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">3 cột</button>
+                                <button @click="gridCols = 'grid-cols-4'" :class="gridCols==='grid-cols-4' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">4 cột</button>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm text-slate-400 mb-2">Khoảng cách các cột (<code>gap-...</code>):</p>
+                            <div class="flex gap-2">
+                                <button @click="gridGap = 'gap-2'" :class="gridGap==='gap-2' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">gap-2</button>
+                                <button @click="gridGap = 'gap-4'" :class="gridGap==='gap-4' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">gap-4</button>
+                                <button @click="gridGap = 'gap-8'" :class="gridGap==='gap-8' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">gap-8</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-slate-900 border border-slate-700 rounded h-40">
+                        <div :class="['grid', gridCols, gridGap, 'bg-slate-800 border border-dashed border-slate-600 p-2 transition-all duration-300']">
+                            <div v-for="i in 6" :key="i" class="bg-indigo-500 h-10 rounded-md flex items-center justify-center font-bold text-white shadow">{{ i }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative group h-full">
+                    <button @click="store.explainCode($refs.gridCode.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
+                    </button>
+                    <pre ref="gridCode" class="code-block h-full pt-12">
+<span class="text-slate-500">&lt;!-- CSS Grid Container --&gt;</span>
+&lt;div class="<span class="text-cyan-400">grid {{ gridCols }} {{ gridGap }}</span>"&gt;
+  <span class="text-slate-500">&lt;!-- Lặp 6 thẻ con --&gt;</span>
+  &lt;div class="bg-indigo-500 h-10 rounded"&gt;1&lt;/div&gt;
+  &lt;div class="bg-indigo-500 h-10 rounded"&gt;2&lt;/div&gt;
+  &lt;div class="bg-indigo-500 h-10 rounded"&gt;3&lt;/div&gt;
+  &lt;div class="bg-indigo-500 h-10 rounded"&gt;4&lt;/div&gt;
+  &lt;div class="bg-indigo-500 h-10 rounded"&gt;5&lt;/div&gt;
+  &lt;div class="bg-indigo-500 h-10 rounded"&gt;6&lt;/div&gt;
+&lt;/div&gt;</pre>
+                </div>
+            </div>
+
+            <!-- Responsive Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-panel p-6 rounded-xl space-y-6">
+                    <h3 class="font-bold border-b border-slate-700 pb-2 text-cyan-200"><i class="fa-solid fa-mobile-screen-button"></i> 9.3. Responsive Design (Mobile-First)</h3>
+                    <p class="text-sm text-slate-300">Tailwind áp dụng mô hình Mobile-first. Luôn viết class mặc định cho điện thoại trước (ví dụ: <code>w-full</code>), sau đó dùng các tiền tố <code>sm:</code>, <code>md:</code>, <code>lg:</code> để đè lại class khi màn hình to lên.</p>
+                    
+                    <div class="p-4 bg-slate-900 border border-slate-700 rounded flex flex-col items-center justify-center overflow-hidden relative">
+                        <span class="absolute top-2 right-2 text-[10px] text-slate-500 border border-slate-700 px-1 rounded"><i class="fa-solid fa-up-right-and-down-left-from-center"></i> Resize Browser để thử</span>
+                        
+                        <div class="transition-all duration-500 flex items-center justify-center font-bold text-white shadow-lg rounded-xl mt-6
+                                    w-full h-16 bg-rose-500 text-sm content-before
+                                    sm:w-3/4 sm:h-20 sm:bg-orange-500 sm:text-base sm:content-sm
+                                    md:w-1/2 md:h-24 md:bg-blue-500 md:text-lg md:content-md
+                                    lg:w-1/3 lg:h-32 lg:bg-emerald-500 lg:text-xl lg:content-lg">
+                        </div>
+                        
+                        <!-- Pseudo element để hiển thị text thay đổi bằng CSS dựa theo Media Query -->
+                        <style>
+                            .content-before::before { content: "Mobile (< 640px)"; }
+                            @media (min-width: 640px) { .content-sm::before { content: "Tablet (sm: 640px+)"; } }
+                            @media (min-width: 768px) { .content-md::before { content: "Laptop (md: 768px+)"; } }
+                            @media (min-width: 1024px) { .content-lg::before { content: "Desktop (lg: 1024px+)"; } }
+                        </style>
+                    </div>
+                </div>
+                <div class="relative group h-full">
+                    <button @click="store.explainCode($refs.resCode.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
+                    </button>
+                    <pre ref="resCode" class="code-block h-full pt-12">
+<span class="text-slate-500">&lt;!-- Khi màn hình càng lớn, class phía sau sẽ Ghi đè class trước --&gt;</span>
+&lt;div class="
+  <span class="text-slate-500">/* Kích thước Mặc định (Mobile): Rộng 100%, Nền đỏ */</span>
+  <span class="text-cyan-400">w-full h-16 bg-rose-500</span>
+  
+  <span class="text-slate-500">/* sm (>= 640px): Rộng 75%, Nền cam */</span>
+  <span class="text-yellow-400">sm:</span>w-3/4 <span class="text-yellow-400">sm:</span>h-20 <span class="text-yellow-400">sm:</span>bg-orange-500
+  
+  <span class="text-slate-500">/* md (>= 768px): Rộng 50%, Nền xanh dương */</span>
+  <span class="text-yellow-400">md:</span>w-1/2 <span class="text-yellow-400">md:</span>h-24 <span class="text-yellow-400">md:</span>bg-blue-500
+  
+  <span class="text-slate-500">/* lg (>= 1024px): Rộng 33.3%, Nền xanh lá */</span>
+  <span class="text-yellow-400">lg:</span>w-1/3 <span class="text-yellow-400">lg:</span>h-32 <span class="text-yellow-400">lg:</span>bg-emerald-500
+"&gt;
+  Responsive Box
+&lt;/div&gt;</pre>
+                </div>
+            </div>
+            
+            <button @click="store.markCompleted('tailwind', 150)" class="bg-cyan-500 text-slate-900 font-bold px-6 py-2 rounded-lg hover:bg-cyan-400 mt-6">Hoàn thành Bài 9 (+150 XP)</button>
+        </div>
+    </script>
+
+    <!-- ========================================== -->
+    <!-- 10. GEMINI AI QUIZ                          -->
+    <!-- ========================================== -->
+    <script type="text/x-template" id="ai-quiz-template">
+        <div class="max-w-4xl mx-auto space-y-8">
+            <h2 class="text-3xl font-bold text-gemini flex items-center gap-3">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> 10. ✨ AI Quiz: Thử thách Cuối khóa
+            </h2>
+            <p class="text-slate-400 text-lg">Kết nối với <b>Gemini AI</b> tạo câu hỏi trắc nghiệm ngẫu nhiên. Trả lời đúng để nhận <b>+200 XP</b>!</p>
+            
+            <div class="glass-panel p-8 rounded-xl border border-purple-500/30 shadow-[0_0_20px_rgba(139,92,246,0.15)]">
+                
+                <div v-if="!quizData && !isGenerating" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <button @click="generateQuiz('Vue 3 Components và Composition API')" class="bg-slate-800 hover:bg-slate-700 border border-vue text-vue font-bold py-4 rounded-lg transition flex flex-col items-center gap-2">
+                        <i class="fa-brands fa-vuejs text-3xl"></i> Câu hỏi Vue 3
+                    </button>
+                    <button @click="generateQuiz('Kiến thức Tailwind CSS Utility First')" class="bg-slate-800 hover:bg-slate-700 border border-cyan-400 text-cyan-400 font-bold py-4 rounded-lg transition flex flex-col items-center gap-2">
+                        <i class="fa-brands fa-css3-alt text-3xl"></i> Câu hỏi Tailwind
+                    </button>
+                    <button @click="generateQuiz('Nuxt 4 SSR, Layouts, và Data Fetching')" class="bg-slate-800 hover:bg-slate-700 border border-nuxt text-nuxt font-bold py-4 rounded-lg transition flex flex-col items-center gap-2">
+                        <i class="fa-solid fa-mountain-sun text-3xl"></i> Câu hỏi Nuxt 4
+                    </button>
+                    <button @click="generateQuiz('Pinia storeToRefs và Quản lý trạng thái')" class="bg-slate-800 hover:bg-slate-700 border border-pinia text-pinia font-bold py-4 rounded-lg transition flex flex-col items-center gap-2">
+                        <i class="fa-solid fa-store text-3xl"></i> Câu hỏi Pinia
+                    </button>
+                </div>
+
+                <div v-if="isGenerating" class="flex flex-col items-center justify-center py-12 gap-4">
+                    <i class="fa-solid fa-microchip text-5xl text-gemini animate-pulse"></i>
+                    <p class="text-slate-300 font-medium">✨ Gemini đang suy nghĩ và biên soạn câu hỏi...</p>
+                </div>
+
+                <div v-if="quizData && !isGenerating" class="space-y-6">
+                    <div class="bg-slate-900 border border-slate-700 p-6 rounded-lg relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-gemini"></div>
+                        <span class="text-xs text-gemini font-bold uppercase mb-2 block">✨ Câu hỏi từ Gemini</span>
+                        <h3 class="text-xl font-medium text-white">{{ quizData.question }}</h3>
+                    </div>
+
+                    <div class="space-y-3">
+                        <button 
+                            v-for="(option, index) in quizData.options" 
+                            :key="index"
+                            @click="selectAnswer(index)"
+                            :disabled="hasAnswered"
+                            :class="[
+                                'w-full text-left p-4 rounded-lg border transition duration-300',
+                                !hasAnswered ? 'bg-slate-800 border-slate-600 hover:bg-slate-700 hover:border-slate-500' : '',
+                                hasAnswered && index === quizData.correctIndex ? 'bg-green-900/40 border-green-500 text-green-100' : '',
+                                hasAnswered && index === selectedIndex && index !== quizData.correctIndex ? 'bg-red-900/40 border-red-500 text-red-100' : '',
+                                hasAnswered && index !== selectedIndex && index !== quizData.correctIndex ? 'bg-slate-800 border-slate-700 opacity-50' : ''
+                            ]"
+                        >
+                            <span class="font-bold mr-2">{{ ['A', 'B', 'C', 'D'][index] }}.</span> {{ option }}
+                        </button>
+                    </div>
+
+                    <div v-if="hasAnswered" class="mt-8 p-5 bg-slate-900 rounded-lg border border-slate-700 animate-[fadeIn_0.5s_ease-out]">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span v-if="isCorrect" class="text-green-400 font-bold text-lg"><i class="fa-solid fa-party-horn"></i> Chính xác! (+200 XP)</span>
+                            <span v-else class="text-red-400 font-bold text-lg"><i class="fa-solid fa-face-frown"></i> Sai rồi! Đừng nản chí nhé.</span>
+                        </div>
+                        <p class="text-slate-300 text-sm leading-relaxed"><strong class="text-white">✨ Trợ lý AI giải thích:</strong> {{ quizData.explanation }}</p>
+                        <button @click="resetQuiz" class="mt-4 bg-gemini hover:bg-purple-500 text-white font-bold py-2 px-6 rounded transition">Tạo câu hỏi mới</button>
+                    </div>
+                </div>
+            </div>
+            <button @click="store.markCompleted('ai-quiz', 300)" class="bg-gemini text-white font-bold px-6 py-2 rounded-lg hover:bg-purple-500 shadow-[0_0_15px_rgba(139,92,246,0.5)]">Hoàn thành Khóa Học (+300 XP)</button>
+        </div>
+    </script>
+
+    <!-- ========================================== -->
+    <!-- LOGIC ỨNG DỤNG VÀ GEMINI API               -->
+    <!-- ========================================== -->
+    <script>
+        const { createApp, ref, computed, watch, onMounted, onUnmounted } = Vue;
+        const { createPinia, defineStore, storeToRefs } = Pinia;
+
+        const apiKey = ""; 
+        
+        async function fetchGeminiText(prompt, systemInstruction) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = { contents: [{ parts: [{ text: prompt }] }], systemInstruction: { parts: [{ text: systemInstruction }] } };
+            let retries = 5, delay = 1000;
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    const data = await res.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Lỗi phản hồi.";
+                } catch (e) { if (i === retries - 1) throw e; await new Promise(r => setTimeout(r, delay)); delay *= 2; }
+            }
+        }
+
+        async function fetchGeminiJson(prompt, systemInstruction) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }], systemInstruction: { parts: [{ text: systemInstruction }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            question: { type: "STRING" }, options: { type: "ARRAY", items: { type: "STRING" } },
+                            correctIndex: { type: "INTEGER" }, explanation: { type: "STRING" }
+                        }, required: ["question", "options", "correctIndex", "explanation"]
+                    }
+                }
+            };
+            let retries = 5, delay = 1000;
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    const data = await res.json(); return JSON.parse(data.candidates[0].content.parts[0].text);
+                } catch (e) { if (i === retries - 1) throw e; await new Promise(r => setTimeout(r, delay)); delay *= 2; }
+            }
+        }
+
+        const useAppStore = defineStore('appStore', () => {
+            // LOAD TỪ LOCALSTORAGE
+            const lsStr = localStorage.getItem('vueNuxtHubState');
+            const savedState = lsStr ? JSON.parse(lsStr) : {};
+
+            const exp = ref(savedState.exp || 0); 
+            const completed = ref(savedState.completed || []);
+            const coins = ref(savedState.coins || 0);
+            
+            // --- TÍNH NĂNG ĐIỂM DANH & KHÔI PHỤC (STREAK) ---
+            const streak = ref(savedState.streak || 0);
+            const lastCheckIn = ref(savedState.lastCheckIn || null);
+            const missedDays = ref(0);
+            const currentDate = ref(new Date()); 
+            
+            const getStrDate = (dateObj) => {
+                const d = new Date(dateObj);
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            };
+            
+            const todayStr = computed(() => getStrDate(currentDate.value));
+
+            // Tính toán số ngày bỏ lỡ khi ứng dụng (hoặc ngày) thay đổi
+            watch(todayStr, (todayValue) => {
+                if (lastCheckIn.value) {
+                    const lastDate = new Date(lastCheckIn.value);
+                    const todayDate = new Date(todayValue);
+                    const diffTime = Math.abs(todayDate - lastDate);
+                    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays > 1) {
+                        missedDays.value = diffDays - 1; // Số ngày thực sự bỏ lỡ
+                    } else {
+                        missedDays.value = 0;
+                    }
+                }
+            }, { immediate: true });
+            
+            const needsRestore = computed(() => missedDays.value > 0);
+            const restoreCost = computed(() => missedDays.value * 10); // Phí phạt = 10 xu mỗi ngày bỏ lỡ
+            const canCheckIn = computed(() => lastCheckIn.value !== todayStr.value && !needsRestore.value);
+            
+            // Icon & Thưởng Xu
+            const streakIcon = computed(() => {
+                if (streak.value === 0) return { icon: 'fa-regular fa-calendar-xmark', color: 'text-slate-500', name: 'Chưa bắt đầu' };
+                if (streak.value < 3) return { icon: 'fa-solid fa-seedling', color: 'text-green-400', name: 'Mầm non' };
+                if (streak.value < 7) return { icon: 'fa-solid fa-fire', color: 'text-orange-500', name: 'Đang cháy' };
+                if (streak.value < 14) return { icon: 'fa-solid fa-star', color: 'text-yellow-400', name: 'Ngôi sao' };
+                if (streak.value < 30) return { icon: 'fa-solid fa-gem', color: 'text-blue-400', name: 'Kim cương' };
+                return { icon: 'fa-solid fa-crown', color: 'text-yellow-500', name: 'Huyền thoại' };
+            });
+
+            const nextCoinReward = computed(() => {
+                const current = streak.value;
+                if (current === 0) return 1;
+                if (current === 1) return 2;
+                if (current === 2) return 3;
+                if (current === 3 || current === 4) return 5;
+                return 6;
+            });
+
+            function checkIn() {
+                if (!canCheckIn.value) return;
+                coins.value += nextCoinReward.value;
+                streak.value++; 
+                addExp(50);
+                lastCheckIn.value = todayStr.value;
+            }
+
+            function restoreStreak() {
+                if (coins.value >= restoreCost.value) {
+                    coins.value -= restoreCost.value;
+                    missedDays.value = 0;
+                    // Chỉnh lastCheckIn về ngày hôm qua để có thể điểm danh bình thường
+                    const yesterday = new Date(currentDate.value);
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    lastCheckIn.value = getStrDate(yesterday);
+                }
+            }
+
+            function checkInAfterBreak() {
+                streak.value = 1;
+                coins.value += 1;
+                addExp(50);
+                lastCheckIn.value = todayStr.value;
+                missedDays.value = 0;
+            }
+
+            // Test Tua thời gian
+            function simulateNextDay() {
+                const next = new Date(currentDate.value); next.setDate(next.getDate() + 1); currentDate.value = next;
+            }
+            function simulateMissDay() {
+                const next = new Date(currentDate.value); next.setDate(next.getDate() + 2); currentDate.value = next;
+            }
+            // ------------------------------------
+
+            // SAVE LOCALSTORAGE TỰ ĐỘNG
+            watch([exp, completed, coins, streak, lastCheckIn], () => {
+                localStorage.setItem('vueNuxtHubState', JSON.stringify({
+                    exp: exp.value, completed: completed.value, coins: coins.value, streak: streak.value, lastCheckIn: lastCheckIn.value
+                }));
+            }, { deep: true });
+
+            const completedTasks = computed(() => completed.value.length);
+            const level = computed(() => {
+                if (exp.value < 300) return 'Tân binh';
+                if (exp.value < 700) return 'Lập trình viên';
+                if (exp.value < 1200) return 'Chuyên gia Nuxt';
+                return 'Huyền thoại AI & Nuxt';
+            });
+
+            function addExp(amount) { exp.value += amount; }
+            function markCompleted(section, expReward) {
+                if (!completed.value.includes(section)) { completed.value.push(section); addExp(expReward); }
+            }
+
+            const aiModalOpen = ref(false), aiLoading = ref(false), aiResponse = ref(''), aiTitle = ref('✨ Trợ lý AI');
+            async function explainCode(codeText) {
+                aiModalOpen.value = true; aiLoading.value = true; aiResponse.value = ''; aiTitle.value = '✨ AI đang phân tích code...';
+                try {
+                    const prompt = `Giải thích đoạn code/vấn đề sau cho người mới học Web. Dùng HTML cơ bản (<p>, <b>, <ul>, <li>, <code>). Không dùng markdown (**, *, \`\`\`):\n\n${codeText}`;
+                    const sysInst = "Bạn là giảng viên Web (Vue/Nuxt/Tailwind). Giải thích ngắn gọn, đi thẳng vào vấn đề cốt lõi.";
+                    aiResponse.value = await fetchGeminiText(prompt, sysInst);
+                    aiTitle.value = '✨ Phân tích từ Trợ lý Gemini';
+                } catch (error) { aiResponse.value = `<span class="text-red-400">Lỗi: ${error.message}</span>`; aiTitle.value = '❌ Lỗi'; } 
+                finally { aiLoading.value = false; }
+            }
+            
+            return { 
+                exp, completed, completedTasks, level, coins, addExp, markCompleted, 
+                aiModalOpen, aiLoading, aiResponse, aiTitle, explainCode,
+                streak, canCheckIn, streakIcon, nextCoinReward, needsRestore, missedDays, restoreCost,
+                checkIn, restoreStreak, checkInAfterBreak, simulateNextDay, simulateMissDay 
+            };
+        });
+
+        // Components
+        const VueBasic = {
+            template: '#vue-basic-template',
+            setup() {
+                const store = useAppStore(); const newItem = ref(''); const items = ref(['Vue 3', 'Vite']);
+                const addItem = () => { if(newItem.value.trim()) { items.value.push(newItem.value.trim()); newItem.value = ''; } }
+                const removeItem = (i) => items.value.splice(i, 1);
+                return { store, newItem, items, addItem, removeItem };
+            }
+        };
+
+        const VueComponents = {
+            template: '#vue-components-template',
+            setup() {
+                const store = useAppStore(); const parentCardTitle = ref("Thẻ số 1 (Props từ Cha)"); const likesCount = ref(0);
+                const emitLike = () => { likesCount.value++; };
+                return { store, parentCardTitle, likesCount, emitLike };
+            }
+        };
+
+        const VueAdv = {
+            template: '#vue-adv-template',
+            setup() {
+                const store = useAppStore(); const volume = ref(50); const warning = ref('');
+                watch(volume, (val) => { if (val > 100) { volume.value = 100; warning.value = 'Âm lượng đạt mức tối đa!'; setTimeout(() => warning.value = '', 2000); } else if (val < 0) volume.value = 0; });
+                const seconds = ref(0); let timer;
+                onMounted(() => { timer = setInterval(() => seconds.value++, 1000); });
+                onUnmounted(() => clearInterval(timer));
+                return { store, volume, warning, seconds };
+            }
+        };
+
+        const VueRouterTab = {
+            template: '#vue-router-template',
+            setup() {
+                const store = useAppStore(); const isLoggedIn = ref(false); const currentPath = ref('/'); const routerError = ref('');
+                const navigate = (path) => {
+                    routerError.value = '';
+                    if (path === '/dashboard' && !isLoggedIn.value) { routerError.value = "Bạn phải Đăng nhập mới có thể truy cập Dashboard (Requires Auth)!"; return; }
+                    currentPath.value = path;
+                };
+                return { store, isLoggedIn, currentPath, routerError, navigate };
+            }
+        };
+
+        const PiniaTab = { template: '#pinia-template', setup() { return { store: useAppStore() }; } };
+
+        const NuxtRouting = {
+            template: '#nuxt-routing-template',
+            setup() {
+                const route = ref('/');
+                const getRouteTitle = (r) => { if(r === '/') return 'Trang Chủ'; if(r === '/about') return 'Về chúng tôi'; return 'Người dùng #123'; }
+                return { store: useAppStore(), route, getRouteTitle };
+            }
+        };
+
+        const NuxtData = {
+            template: '#nuxt-data-template',
+            setup() {
+                const pending = ref(false); const data = ref(null); const error = ref(null);
+                const fetchData = (shouldFail) => {
+                    pending.value = true; data.value = null; error.value = null;
+                    setTimeout(() => { pending.value = false; if(shouldFail) { error.value = { message: '500 Internal Server Error' }; } else { data.value = [{ id: 1, name: 'Tài liệu Vue', role: 'Official' }, { id: 2, name: 'Tài liệu Nuxt', role: 'Official' }]; } }, 1000);
+                }
+                return { store: useAppStore(), pending, data, error, fetchData };
+            }
+        }
+
+        const NuxtSeo = {
+            template: '#nuxt-seo-template',
+            setup() {
+                const pageTitle = ref('Học viện Vue/Nuxt Pro'); const originalTitle = document.title;
+                watch(pageTitle, (val) => { document.title = val || 'Đang tải...'; }, { immediate: true });
+                onUnmounted(() => document.title = originalTitle);
+                return { store: useAppStore(), pageTitle };
+            }
+        }
+
+        const TailwindTab = {
+            template: '#tailwind-template',
+            setup() {
+                const store = useAppStore();
+                // Flexbox
+                const flexJustify = ref('justify-between');
+                const flexAlign = ref('items-center');
+                
+                // Grid
+                const gridCols = ref('grid-cols-3');
+                const gridGap = ref('gap-4');
+                
+                return { store, flexJustify, flexAlign, gridCols, gridGap };
+            }
+        }
+
+        const AiQuiz = {
+            template: '#ai-quiz-template',
+            setup() {
+                const store = useAppStore(); const isGenerating = ref(false); const quizData = ref(null);
+                const hasAnswered = ref(false); const isCorrect = ref(false); const selectedIndex = ref(null);
+                async function generateQuiz(topic) {
+                    isGenerating.value = true; quizData.value = null; hasAnswered.value = false; selectedIndex.value = null;
+                    try { quizData.value = await fetchGeminiJson(`Tạo 1 câu hỏi trắc nghiệm độ khó trung bình về: ${topic}.`, "Bạn là hệ thống thi lập trình Web."); } 
+                    catch (error) { alert("Lỗi kết nối Gemini AI."); } finally { isGenerating.value = false; }
+                }
+                function selectAnswer(index) {
+                    if (hasAnswered.value) return; 
+                    selectedIndex.value = index; hasAnswered.value = true; isCorrect.value = (index === quizData.value.correctIndex);
+                    if (isCorrect.value) store.addExp(200); 
+                }
+                function resetQuiz() { quizData.value = null; hasAnswered.value = false; selectedIndex.value = null; }
+                return { store, isGenerating, quizData, hasAnswered, isCorrect, selectedIndex, generateQuiz, selectAnswer, resetQuiz };
+            }
+        }
+
+        const app = createApp({
+            template: '#app-template',
+            setup() {
+                const store = useAppStore();
+                const activeTab = ref('vue-basic');
+                
+                const tabs = [
+                    { id: 'vue-basic', name: '1. Vue: API Styles & Directives', icon: 'fa-brands fa-vuejs', color: 'text-vue' },
+                    { id: 'vue-components', name: '2. Vue: Props, Emits & Slots', icon: 'fa-solid fa-cubes', color: 'text-vue' },
+                    { id: 'vue-adv', name: '3. Vue: Lifecycle & Watch', icon: 'fa-solid fa-arrows-spin', color: 'text-vue' },
+                    { id: 'vue-router', name: '4. Router: Guards', icon: 'fa-solid fa-route', color: 'text-blue-400' },
+                    { id: 'pinia', name: '5. Pinia: Options & Setup', icon: 'fa-solid fa-store', color: 'text-pinia' },
+                    { id: 'nuxt-routing', name: '6. Nuxt: Layouts & Route', icon: 'fa-solid fa-folder-tree', color: 'text-nuxt' },
+                    { id: 'nuxt-data', name: '7. Nuxt: SSR Data Fetch', icon: 'fa-solid fa-server', color: 'text-nuxt' },
+                    { id: 'nuxt-seo', name: '8. Nuxt: SEO & Head', icon: 'fa-solid fa-magnifying-glass', color: 'text-nuxt' },
+                    { id: 'tailwind', name: '9. Tailwind: Utilities', icon: 'fa-brands fa-css3-alt', color: 'text-cyan-400' },
+                    { id: 'ai-quiz', name: '10. ✨ AI Quiz', icon: 'fa-solid fa-wand-magic-sparkles', color: 'text-gemini' }
+                ];
+
+                const activeComponent = computed(() => {
+                    const map = {
+                        'vue-basic': 'VueBasic', 'vue-components': 'VueComponents', 'vue-adv': 'VueAdv',
+                        'vue-router': 'VueRouterTab', 'pinia': 'PiniaTab', 'nuxt-routing': 'NuxtRouting',
+                        'nuxt-data': 'NuxtData', 'nuxt-seo': 'NuxtSeo', 'tailwind': 'TailwindTab', 'ai-quiz': 'AiQuiz'
+                    };
+                    return map[activeTab.value] || 'VueBasic';
+                });
+
+                return { store, activeTab, tabs, activeComponent };
+            }
+        });
+
+        const pinia = createPinia(); app.use(pinia);
+        app.component('VueBasic', VueBasic);
+        app.component('VueComponents', VueComponents);
+        app.component('VueAdv', VueAdv);
+        app.component('VueRouterTab', VueRouterTab);
+        app.component('PiniaTab', PiniaTab);
+        app.component('NuxtRouting', NuxtRouting);
+        app.component('NuxtData', NuxtData);
+        app.component('NuxtSeo', NuxtSeo);
+        app.component('TailwindTab', TailwindTab);
+        app.component('AiQuiz', AiQuiz); 
+        app.mount('#app');
+    </script>
+</body>
+</html>
