@@ -249,7 +249,7 @@ function addItem() {
   &lt;input <span class="text-vue">v-model</span>="newItem" /&gt;
   
   &lt;ul&gt;
-    &lt;li <span class="text-vue">v-for</span>="(item, i) in items" :key="i"&gt;{{ item }}&lt;/li&gt;
+    &lt;li <span class="text-vue">v-for</span>="(item, i) in items" :key="i"&gt;<span v-pre>{{ item }}</span>&lt;/li&gt;
   &lt;/ul&gt;
 <span class="text-slate-500">&lt;/template&gt;</span></pre>
                 </div>
@@ -303,7 +303,7 @@ const emit = <span class="text-vue">defineEmits</span>(['likeAction'])
 
 <span class="text-slate-500">&lt;template&gt;</span>
   &lt;div class="card"&gt;
-    &lt;h3&gt;{{ title }}&lt;/h3&gt;
+    &lt;h3&gt;<span v-pre>{{ title }}</span>&lt;/h3&gt;
     <span class="text-slate-500">&lt;!-- 3. SLOT: Lỗ hổng để nhét HTML từ Cha vào --&gt;</span>
     <span class="text-vue">&lt;slot&gt;</span>Nội dung mặc định nếu Cha ko truyền<span class="text-vue">&lt;/slot&gt;</span>
     
@@ -634,11 +634,11 @@ const { addExp } = store
                         </div>
                         <div v-else-if="error" class="text-red-400 h-full flex flex-col justify-center items-center">
                             <i class="fa-solid fa-triangle-exclamation text-3xl mb-2"></i>
-                            <p>Lỗi: {{ error.message }}</p>
+                            <p>Lỗi: <span v-pre>{{ error.message }}</span></p>
                         </div>
                         <ul v-else-if="data" class="space-y-2">
                             <li v-for="user in data" :key="user.id" class="p-2 bg-slate-800 rounded flex justify-between">
-                                <span>{{ user.name }}</span><span class="text-slate-400 text-sm">{{ user.role }}</span>
+                                <span><span v-pre>{{ user.name }}</span></span><span class="text-slate-400 text-sm"><span v-pre>{{ user.role }}</span></span>
                             </li>
                         </ul>
                         <div v-else class="text-slate-500 text-center mt-10">Chưa có dữ liệu</div>
@@ -659,9 +659,9 @@ const { data, pending, error } = await <span class="text-nuxt">useFetch</span>('
 
 <span class="text-slate-500">&lt;template&gt;</span>
   &lt;div <span class="text-vue">v-if</span>="pending"&gt;Đang tải...&lt;/div&gt;
-  &lt;div <span class="text-vue">v-else-if</span>="error"&gt;Lỗi: {{ error.message }}&lt;/div&gt;
+  &lt;div <span class="text-vue">v-else-if</span>="error"&gt;Lỗi: <span v-pre>{{ error.message }}</span>&lt;/div&gt;
   &lt;ul <span class="text-vue">v-else</span>&gt;
-    &lt;li <span class="text-vue">v-for</span>="u in data" :key="u.id"&gt;{{ u.name }}&lt;/li&gt;
+    &lt;li <span class="text-vue">v-for</span>="u in data" :key="u.id"&gt;<span v-pre>{{ u.name }}</span>&lt;/li&gt;
   &lt;/ul&gt;
 <span class="text-slate-500">&lt;/template&gt;</span></pre>
                 </div>
