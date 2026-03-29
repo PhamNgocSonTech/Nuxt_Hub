@@ -1,20 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Học viện Vue, Pinia & Nuxt 4 Pro (AI Powered)</title>
-    
-    <!-- Tải Tailwind CSS cho UI/UX -->
+
+    <!-- Tải Tailwind CSS cho UI/UX (Bản mô phỏng trên Browser) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Tải Vue 3, Vue Demi (yêu cầu của Pinia), và Pinia -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://unpkg.com/vue-demi@0.14.6/lib/index.iife.js"></script>
-    <script src="https://unpkg.com/pinia@2.1.7/dist/pinia.iife.js"></script>
-    
-    <!-- Tải FontAwesome cho Icon -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script>
         tailwind.config = {
@@ -25,30 +18,101 @@
                         vuetxt: '#35495e',
                         nuxt: '#00DC82',
                         pinia: '#FFE56E',
-                        gemini: '#8b5cf6'
+                        gemini: '#8b5cf6',
+                        ts: '#3178c6'
                     }
                 }
             }
         }
     </script>
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
-        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .code-block { font-family: 'Fira Code', monospace; background: #1e293b; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; color: #e2e8f0; border: 1px solid #334155; font-size: 0.85rem; line-height: 1.4; }
-        .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
-        .fade-enter-from, .fade-leave-to { opacity: 0; }
-        
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
-        .ai-content code { background: #0f172a; padding: 0.2rem 0.4rem; border-radius: 0.25rem; color: #00DC82; font-family: monospace; border: 1px solid #334155;}
-        .ai-content b, .ai-content strong { color: #fff; }
-        .ai-content ul { list-style-type: disc; margin-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
-        .ai-content p { margin-bottom: 0.75rem; }
+    <!-- Tải Vue 3, Vue Demi (yêu cầu của Pinia), và Pinia -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/vue-demi@0.14.6/lib/index.iife.js"></script>
+    <script src="https://unpkg.com/pinia@2.1.7/dist/pinia.iife.js"></script>
+
+    <!-- Tải FontAwesome cho Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .code-block {
+            font-family: 'Fira Code', monospace;
+            background: #1e293b;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            color: #e2e8f0;
+            border: 1px solid #334155;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity 0.3s ease;
+        }
+
+        .fade-enter-from,
+        .fade-leave-to {
+            opacity: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        .ai-content code {
+            background: #0f172a;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            color: #00DC82;
+            font-family: monospace;
+            border: 1px solid #334155;
+        }
+
+        .ai-content b,
+        .ai-content strong {
+            color: #fff;
+        }
+
+        .ai-content ul {
+            list-style-type: disc;
+            margin-left: 1.5rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .ai-content p {
+            margin-bottom: 0.75rem;
+        }
     </style>
 </head>
+
 <body class="h-screen flex flex-col overflow-hidden">
 
     <div id="app" class="h-full flex flex-col"></div>
@@ -68,7 +132,7 @@
             
             <div class="flex items-center gap-4 bg-slate-800 px-4 py-2 rounded-full border border-slate-700">
                 <div class="flex gap-3 text-sm items-center">
-                    <span class="text-nuxt font-bold">{{ store.completedTasks }}/10</span>
+                    <span class="text-nuxt font-bold">{{ store.completedTasks }}/11</span>
                     <div class="h-4 w-px bg-slate-600 mx-0.5"></div>
                     <span class="text-vue font-bold" title="Kinh nghiệm">{{ store.exp }} XP</span>
                     <div class="h-4 w-px bg-slate-600 mx-0.5"></div>
@@ -185,7 +249,7 @@
                         <li>Logic bị phân mảnh vào các block <code>data()</code>, <code>methods</code>, <code>computed</code>.</li>
                         <li>Dễ học ban đầu, nhưng cực kỳ khó bảo trì khi file lớn. Khó tái sử dụng.</li>
                     </ul>
-                    <pre class="code-block text-xs border-red-900/50">export default {
+                    <pre class="code-block text-xs border-red-900/50" v-pre>export default {
   data() { return { count: 0 } },
   methods: { add() { this.count++ } }
 }</pre>
@@ -196,7 +260,7 @@
                         <li>Sử dụng cú pháp <code>&lt;script setup&gt;</code> vô cùng ngắn gọn.</li>
                         <li>Gom nhóm logic theo <b>Tính năng</b>, tái sử dụng dễ dàng qua <i>Composables</i>.</li>
                     </ul>
-                    <pre class="code-block text-xs border-vue/50">&lt;script setup&gt;
+                    <pre class="code-block text-xs border-vue/50" v-pre>&lt;script setup&gt;
 import { ref } from 'vue'
 const count = ref(0)
 const add = () => count.value++
@@ -228,7 +292,7 @@ const add = () => count.value++
                     <button @click="store.explainCode($refs.codeBlock.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
                     </button>
-                    <pre ref="codeBlock" class="code-block h-full pt-12">
+                    <pre ref="codeBlock" class="code-block h-full pt-12" v-pre>
 <span class="text-slate-500">&lt;script setup&gt;</span>
 import { ref, computed } from 'vue'
 
@@ -249,7 +313,7 @@ function addItem() {
   &lt;input <span class="text-vue">v-model</span>="newItem" /&gt;
   
   &lt;ul&gt;
-    &lt;li <span class="text-vue">v-for</span>="(item, i) in items" :key="i"&gt;<span v-pre>{{ item }}</span>&lt;/li&gt;
+    &lt;li <span class="text-vue">v-for</span>="(item, i) in items" :key="i"&gt;{{ item }}&lt;/li&gt;
   &lt;/ul&gt;
 <span class="text-slate-500">&lt;/template&gt;</span></pre>
                 </div>
@@ -291,7 +355,7 @@ function addItem() {
                     <button @click="store.explainCode($refs.codeBlock.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
                     </button>
-                    <pre ref="codeBlock" class="code-block h-full pt-12">
+                    <pre ref="codeBlock" class="code-block h-full pt-12" v-pre>
 <span class="text-slate-500">&lt;!-- 📦 ChildCard.vue (Component Con) --&gt;</span>
 <span class="text-slate-500">&lt;script setup&gt;</span>
 <span class="text-slate-500">// 1. Nhận dữ liệu text từ Cha (Props)</span>
@@ -303,7 +367,7 @@ const emit = <span class="text-vue">defineEmits</span>(['likeAction'])
 
 <span class="text-slate-500">&lt;template&gt;</span>
   &lt;div class="card"&gt;
-    &lt;h3&gt;<span v-pre>{{ title }}</span>&lt;/h3&gt;
+    &lt;h3&gt;{{ title }}&lt;/h3&gt;
     <span class="text-slate-500">&lt;!-- 3. SLOT: Lỗ hổng để nhét HTML từ Cha vào --&gt;</span>
     <span class="text-vue">&lt;slot&gt;</span>Nội dung mặc định nếu Cha ko truyền<span class="text-vue">&lt;/slot&gt;</span>
     
@@ -382,7 +446,7 @@ const emit = <span class="text-vue">defineEmits</span>(['likeAction'])
                     <button @click="store.explainCode($refs.codeBlock.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
                     </button>
-                    <pre ref="codeBlock" class="code-block h-full pt-12">
+                    <pre ref="codeBlock" class="code-block h-full pt-12" v-pre>
 <span class="text-slate-500">&lt;script setup&gt;</span>
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 
@@ -414,74 +478,184 @@ let timerId
     </script>
 
     <!-- ========================================== -->
-    <!-- 4. VUE ROUTER: NAVIGATION & GUARDS         -->
+    <!-- 4. VUE ROUTER: ĐỊNH TUYẾN & BẢO MẬT        -->
     <!-- ========================================== -->
     <script type="text/x-template" id="vue-router-template">
         <div class="max-w-6xl mx-auto space-y-8">
-            <h2 class="text-3xl font-bold text-vue"><i class="fa-solid fa-route"></i> 4. Vue Router: Navigation & Guards</h2>
-            <p class="text-slate-400">Quản lý đường dẫn (URL) cho các ứng dụng một trang (SPA). Nuxt đã tích hợp sẵn thư viện này.</p>
+            <h2 class="text-3xl font-bold text-vue"><i class="fa-solid fa-route"></i> 4. Vue Router: Dynamic, Layouts & Guards</h2>
+            <p class="text-slate-400">Cơ chế định tuyến mạnh mẽ giúp tạo ứng dụng SPA. Bao gồm tái sử dụng giao diện (Layout), xử lý URL động, bắt lỗi 404 và bảo vệ trang bằng Middleware.</p>
             
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Vùng mô phỏng Router -->
-                <div class="glass-panel p-6 rounded-xl space-y-4 relative">
-                    <div class="absolute top-2 right-4 text-xs font-mono text-slate-500">URL Ảo: <span class="text-white">localhost:3000{{ currentPath }}</span></div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Bảng Điều Khiển Giả Lập -->
+                <div class="lg:col-span-5 space-y-6">
                     
-                    <h3 class="font-bold border-b border-slate-700 pb-2 mt-4">Điều hướng & Middleware (Guards)</h3>
-                    
-                    <div class="flex items-center gap-3 bg-slate-900 p-3 rounded border border-slate-700 mb-6">
-                        <span class="text-sm text-slate-400">Trạng thái:</span>
-                        <span :class="isLoggedIn ? 'text-green-400 font-bold' : 'text-red-400 font-bold'">{{ isLoggedIn ? '✅ Đã đăng nhập' : '❌ Chưa đăng nhập' }}</span>
-                        <button @click="isLoggedIn = !isLoggedIn" class="ml-auto bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-xs transition">
-                            Cấp quyền giả lập
-                        </button>
+                    <!-- Box: Phân Quyền (Auth & Roles) -->
+                    <div class="glass-panel p-5 rounded-xl border border-slate-700">
+                        <h3 class="font-bold text-blue-400 mb-3 border-b border-slate-700 pb-2"><i class="fa-solid fa-id-badge"></i> Trạng thái Người dùng</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-slate-400">Đăng nhập:</span>
+                                <button @click="isLoggedIn = !isLoggedIn" :class="isLoggedIn ? 'bg-green-600/20 text-green-400 border-green-500' : 'bg-slate-700 text-slate-400 border-slate-600'" class="px-3 py-1 rounded text-xs border transition w-28 text-center font-bold">
+                                    {{ isLoggedIn ? 'Đã đăng nhập' : 'Khách' }}
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between" v-if="isLoggedIn">
+                                <span class="text-sm text-slate-400">Quyền (Role):</span>
+                                <div class="flex bg-slate-800 rounded border border-slate-700 p-0.5">
+                                    <button @click="role = 'user'" :class="role === 'user' ? 'bg-slate-600 text-white' : 'text-slate-400'" class="px-3 py-1 rounded text-xs transition">User</button>
+                                    <button @click="role = 'admin'" :class="role === 'admin' ? 'bg-blue-600 text-white' : 'text-slate-400'" class="px-3 py-1 rounded text-xs transition">Admin</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-if="routerError" class="mt-4 p-2 bg-red-900/30 border border-red-700/50 text-red-400 rounded text-xs animate-pulse">
+                            <i class="fa-solid fa-shield-halved"></i> <b>Guard chặn:</b> {{ routerError }}
+                        </div>
                     </div>
 
-                    <div class="flex gap-2">
-                        <button @click="navigate('/')" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded text-sm transition font-bold">
-                            <i class="fa-solid fa-house"></i> Về Home
-                        </button>
-                        <button @click="navigate('/dashboard')" class="bg-blue-900/40 hover:bg-blue-900 border border-blue-700 px-4 py-2 rounded text-sm transition text-blue-200 font-bold">
-                            <i class="fa-solid fa-lock"></i> Vào Dashboard (Auth)
-                        </button>
+                    <!-- Box: Điều Hướng (Navigation) -->
+                    <div class="glass-panel p-5 rounded-xl border border-slate-700">
+                        <h3 class="font-bold text-vue mb-3 border-b border-slate-700 pb-2"><i class="fa-solid fa-compass"></i> Điều hướng (Links)</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button @click="navigate('/')" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-2 rounded text-xs transition text-left text-white">
+                                <i class="fa-solid fa-house w-4"></i> Trang chủ <code>(/)</code>
+                            </button>
+                            <button @click="navigate('/users/99')" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-2 rounded text-xs transition text-left text-purple-300">
+                                <i class="fa-solid fa-user w-4"></i> ID động <code>(/users/99)</code>
+                            </button>
+                            <button @click="navigate('/post/vue-tips')" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-2 rounded text-xs transition text-left text-orange-300">
+                                <i class="fa-solid fa-newspaper w-4"></i> Slug động <code>(/post/vue-tips)</code>
+                            </button>
+                            <button @click="navigate('/admin')" class="bg-blue-900/30 hover:bg-blue-900/50 border border-blue-700 px-3 py-2 rounded text-xs transition text-left text-blue-300">
+                                <i class="fa-solid fa-lock w-4"></i> Trang Admin <code>(/admin)</code>
+                            </button>
+                            <button @click="navigate('/trang-ao-nao-do')" class="col-span-2 bg-red-900/20 hover:bg-red-900/40 border border-red-800 px-3 py-2 rounded text-xs transition text-center text-red-300">
+                                <i class="fa-solid fa-link-slash"></i> Truy cập URL không tồn tại (Test 404)
+                            </button>
+                        </div>
                     </div>
 
-                    <div v-if="routerError" class="p-3 bg-red-900/30 border border-red-700/50 text-red-400 rounded text-sm mt-4 animate-pulse">
-                        <i class="fa-solid fa-shield-halved"></i> <b>Router Guard kích hoạt:</b> {{ routerError }}
-                    </div>
                 </div>
 
-                <div class="relative group h-full">
-                    <button @click="store.explainCode($refs.codeBlock.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
-                    </button>
-                    <pre ref="codeBlock" class="code-block h-full pt-12">
+                <!-- Giao Diện App Giả Lập -->
+                <div class="lg:col-span-7 flex flex-col">
+                    <div class="bg-slate-300 rounded-t-xl border border-slate-400 p-2 flex items-center gap-2">
+                        <div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-red-400"></div><div class="w-3 h-3 rounded-full bg-yellow-400"></div><div class="w-3 h-3 rounded-full bg-green-400"></div></div>
+                        <div class="bg-white px-3 py-1 text-xs rounded shadow-inner flex-1 text-slate-500 font-mono">localhost:3000<span class="text-black font-bold">{{ currentPath }}</span></div>
+                    </div>
+                    
+                    <!-- App Wrapper -->
+                    <div class="bg-white flex-1 rounded-b-xl border border-t-0 border-slate-400 text-slate-800 flex flex-col overflow-hidden relative">
+                        
+                        <button @click="store.explainCode('Giải thích về Layout dùng chung, Dynamic Routing (lấy ID/Slug từ đường dẫn) và Catch-all Route (Trang 404) trong Vue Router/Nuxt.')" class="absolute top-2 right-2 bg-purple-600 hover:bg-purple-500 text-xs px-3 py-1 rounded text-white transition shadow flex items-center gap-2 z-10">
+                            ✨ AI Giải thích Kiến trúc
+                        </button>
+
+                        <!-- Layout Header -->
+                        <div class="bg-indigo-600 text-white p-3 text-center text-sm font-bold shadow-md z-0">
+                            GIAO DIỆN HEADER (Cố định, không load lại)
+                        </div>
+
+                        <!-- Router View (Nội dung thay đổi) -->
+                        <div class="flex-1 p-6 flex items-center justify-center bg-slate-50 relative">
+                            <span class="absolute top-2 left-2 text-[10px] font-bold text-slate-400 border border-slate-300 px-2 rounded bg-white uppercase">&lt;Router-View /&gt;</span>
+                            
+                            <div class="text-center w-full">
+                                <!-- Home -->
+                                <div v-if="matchedComponent === 'Home'" class="animate-[fadeIn_0.3s]">
+                                    <i class="fa-solid fa-house text-4xl text-slate-300 mb-2"></i>
+                                    <h2 class="text-2xl font-bold">Trang Chủ</h2>
+                                </div>
+                                
+                                <!-- Dynamic ID -->
+                                <div v-if="matchedComponent === 'UserProfile'" class="animate-[fadeIn_0.3s]">
+                                    <i class="fa-solid fa-user text-4xl text-purple-400 mb-2"></i>
+                                    <h2 class="text-2xl font-bold">Hồ sơ người dùng</h2>
+                                    <div class="mt-4 inline-block bg-purple-100 text-purple-700 border border-purple-200 p-3 rounded text-sm text-left">
+                                        <p>Biến động lấy từ URL:</p>
+                                        <code class="font-bold">route.params.id = "{{ routeParams.id }}"</code>
+                                    </div>
+                                </div>
+
+                                <!-- Dynamic Slug -->
+                                <div v-if="matchedComponent === 'PostDetail'" class="animate-[fadeIn_0.3s]">
+                                    <i class="fa-solid fa-newspaper text-4xl text-orange-400 mb-2"></i>
+                                    <h2 class="text-2xl font-bold">Chi tiết bài viết</h2>
+                                    <div class="mt-4 inline-block bg-orange-100 text-orange-700 border border-orange-200 p-3 rounded text-sm text-left">
+                                        <p>Slug lấy từ URL (Tốt cho SEO):</p>
+                                        <code class="font-bold">route.params.slug = "{{ routeParams.slug }}"</code>
+                                    </div>
+                                </div>
+
+                                <!-- Admin Panel -->
+                                <div v-if="matchedComponent === 'AdminPanel'" class="animate-[fadeIn_0.3s]">
+                                    <i class="fa-solid fa-shield-halved text-4xl text-blue-500 mb-2"></i>
+                                    <h2 class="text-2xl font-bold text-blue-600">Trang Quản Trị Hệ Thống</h2>
+                                    <p class="text-sm mt-2 text-slate-500">Chỉ Admin mới có thể thấy trang này.</p>
+                                </div>
+
+                                <!-- 404 Not Found -->
+                                <div v-if="matchedComponent === 'NotFound'" class="animate-[fadeIn_0.3s]">
+                                    <h1 class="text-6xl font-black text-slate-200">404</h1>
+                                    <h2 class="text-xl font-bold text-slate-600 mt-2">Trang không tồn tại</h2>
+                                    <p class="text-sm mt-2 text-slate-500">URL <code>{{ currentPath }}</code> không khớp với bất kỳ Route nào được khai báo.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Layout Footer -->
+                        <div class="bg-slate-800 text-slate-400 p-2 text-center text-xs border-t border-slate-700">
+                            GIAO DIỆN FOOTER (Cố định ở mọi trang)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Code Block Thực tế -->
+            <div class="relative group h-full">
+                <button @click="store.explainCode($refs.codeBlock.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
+                </button>
+                <pre ref="codeBlock" class="code-block h-full pt-12" v-pre>
 import { createRouter, createWebHistory } from 'vue-router'
 
-const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    { path: '/', component: Home },
-    <span class="text-slate-500">// Khai báo route cần bảo vệ qua thuộc tính meta</span>
-    { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true } }
-  ]
-})
+const routes = [
+  <span class="text-slate-500">// 1. LAYOUT VÀ NESTED ROUTES</span>
+  <span class="text-slate-500">// File Layout chứa Header & Footer. Trẻ con (children) sẽ render vào &lt;router-view&gt;</span>
+  {
+    path: '/', component: MainLayout,
+    children: [
+      { path: '', component: Home },
+      
+      <span class="text-slate-500">// 2. DYNAMIC ROUTING (ID và Slug)</span>
+      <span class="text-slate-500">// Khai báo biến động bằng dấu hai chấm ":"</span>
+      { path: 'users/:id', component: UserProfile }, 
+      { path: 'post/:slug', component: PostDetail },
 
-<span class="text-slate-500">// --- NAVIGATION GUARDS (Bảo vệ Route toàn cục) ---</span>
-<span class="text-vue">router.beforeEach</span>((to, from, next) => {
-  const isAuth = checkLogin() 
+      <span class="text-slate-500">// 3. AUTH & ROLES (Phân quyền)</span>
+      <span class="text-slate-500">// Gắn thẻ meta để Middleware nhận biết quyền cần thiết</span>
+      { path: 'admin', component: AdminPanel, meta: { requireAuth: true, role: 'admin' } }
+    ]
+  },
+  <span class="text-slate-500">// 4. CATCH-ALL (Trang 404)</span>
+  <span class="text-slate-500">// Bắt tất cả các path không khớp với bất kỳ khai báo nào ở trên</span>
+  { path: '/:pathMatch(.*)*', component: NotFound }
+]
 
-  if (to.meta.requiresAuth && !isAuth) {
-    next('/login') <span class="text-slate-500">// Điều hướng cưỡng bức về Login</span>
-  } else {
-    next() <span class="text-slate-500">// Cho phép đi tiếp</span>
+const router = createRouter({ history: createWebHistory(), routes })
+
+<span class="text-slate-500">// --- MIDDLEWARE (GLOBAL GUARDS) ---</span>
+router.beforeEach((to, from, next) => {
+  <span class="text-slate-500">// Nếu trang yêu cầu Đăng nhập mà chưa có Token -> Về Home/Login</span>
+  if (to.meta.requireAuth && !isLoggedIn) {
+    return next('/login')
   }
-})
-
-<span class="text-slate-500">// Chuyển trang bằng code (Programmatic Navigation)</span>
-function goToDashboard() {
-  <span class="text-vue">router.push</span>('/dashboard')
-}</pre>
-                </div>
+  <span class="text-slate-500">// Nếu trang yêu cầu quyền Admin mà tài khoản chỉ là User -> Về 403 Forbidden</span>
+  if (to.meta.role === 'admin' && user.role !== 'admin') {
+    return next('/403')
+  }
+  next() <span class="text-slate-500">// Hợp lệ, cho phép đi tiếp</span>
+})</pre>
             </div>
             <button @click="store.markCompleted('vue-router', 150)" class="bg-vue text-slate-900 font-bold px-6 py-2 rounded-lg hover:bg-green-400">Hoàn thành Bài 4 (+150 XP)</button>
         </div>
@@ -499,7 +673,7 @@ function goToDashboard() {
                 <!-- So sánh 2 cú pháp -->
                 <div class="glass-panel p-4 rounded-xl border border-slate-700">
                     <h3 class="font-bold text-sm text-slate-300 mb-2">Cách 1: Options Store (Cũ, dễ tiếp cận)</h3>
-                    <pre class="code-block text-xs">export const useCounter = defineStore('counter', {
+                    <pre class="code-block text-xs" v-pre>export const useCounter = defineStore('counter', {
   state: () => ({ count: 0 }),
   getters: { double: (state) => state.count * 2 },
   actions: { increment() { this.count++ } }
@@ -507,7 +681,7 @@ function goToDashboard() {
                 </div>
                 <div class="glass-panel p-4 rounded-xl border border-pinia/50 shadow-[0_0_15px_rgba(255,229,110,0.1)]">
                     <h3 class="font-bold text-sm text-pinia mb-2">Cách 2: Setup Store (Mới, khuyên dùng)</h3>
-                    <pre class="code-block text-xs">export const useCounter = defineStore('counter', () => {
+                    <pre class="code-block text-xs" v-pre>export const useCounter = defineStore('counter', () => {
   const count = ref(0)
   const double = computed(() => count.value * 2)
   function increment() { count.value++ }
@@ -539,7 +713,7 @@ function goToDashboard() {
                         <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
                     </button>
                     
-                    <pre ref="codeBlock" class="code-block h-full pt-12">
+                    <pre ref="codeBlock" class="code-block h-full pt-12" v-pre>
 <span class="text-slate-500">&lt;script setup&gt;</span>
 import { useAppStore } from '@/stores/app'
 import { <span class="text-pinia">storeToRefs</span> } from 'pinia'
@@ -634,11 +808,11 @@ const { addExp } = store
                         </div>
                         <div v-else-if="error" class="text-red-400 h-full flex flex-col justify-center items-center">
                             <i class="fa-solid fa-triangle-exclamation text-3xl mb-2"></i>
-                            <p>Lỗi: <span v-pre>{{ error.message }}</span></p>
+                            <p>Lỗi: <span>{{ error.message }}</span></p>
                         </div>
                         <ul v-else-if="data" class="space-y-2">
                             <li v-for="user in data" :key="user.id" class="p-2 bg-slate-800 rounded flex justify-between">
-                                <span><span v-pre>{{ user.name }}</span></span><span class="text-slate-400 text-sm"><span v-pre>{{ user.role }}</span></span>
+                                <span><span>{{ user.name }}</span></span><span class="text-slate-400 text-sm"><span>{{ user.role }}</span></span>
                             </li>
                         </ul>
                         <div v-else class="text-slate-500 text-center mt-10">Chưa có dữ liệu</div>
@@ -649,7 +823,7 @@ const { addExp } = store
                     <button @click="store.explainCode($refs.codeBlock.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
                     </button>
-                    <pre ref="codeBlock" class="code-block h-full pt-12">
+                    <pre ref="codeBlock" class="code-block h-full pt-12" v-pre>
 <span class="text-slate-500">// pages/users.vue</span>
 <span class="text-slate-500">&lt;script setup&gt;</span>
 <span class="text-slate-500">// useFetch tự động quản lý pending, data, error</span>
@@ -659,9 +833,9 @@ const { data, pending, error } = await <span class="text-nuxt">useFetch</span>('
 
 <span class="text-slate-500">&lt;template&gt;</span>
   &lt;div <span class="text-vue">v-if</span>="pending"&gt;Đang tải...&lt;/div&gt;
-  &lt;div <span class="text-vue">v-else-if</span>="error"&gt;Lỗi: <span v-pre>{{ error.message }}</span>&lt;/div&gt;
+  &lt;div <span class="text-vue">v-else-if</span>="error"&gt;Lỗi: {{ error.message }}&lt;/div&gt;
   &lt;ul <span class="text-vue">v-else</span>&gt;
-    &lt;li <span class="text-vue">v-for</span>="u in data" :key="u.id"&gt;<span v-pre>{{ u.name }}</span>&lt;/li&gt;
+    &lt;li <span class="text-vue">v-for</span>="u in data" :key="u.id"&gt;{{ u.name }}&lt;/li&gt;
   &lt;/ul&gt;
 <span class="text-slate-500">&lt;/template&gt;</span></pre>
                 </div>
@@ -697,7 +871,7 @@ const { data, pending, error } = await <span class="text-nuxt">useFetch</span>('
                     <button @click="store.explainCode($refs.codeBlock.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
                     </button>
-                    <pre ref="codeBlock" class="code-block h-full pt-12">
+                    <pre ref="codeBlock" class="code-block h-full pt-12" v-pre>
 <span class="text-slate-500">&lt;script setup&gt;</span>
 import { ref } from 'vue'
 const pageTitle = ref('Sản phẩm mới')
@@ -727,118 +901,78 @@ const pageTitle = ref('Sản phẩm mới')
     <script type="text/x-template" id="tailwind-template">
         <div class="max-w-6xl mx-auto space-y-12">
             <div class="space-y-2">
-                <h2 class="text-3xl font-bold text-cyan-400"><i class="fa-brands fa-css3-alt"></i> 9. Tailwind CSS: Flex, Grid & Responsive</h2>
-                <p class="text-slate-400">Tailwind CSS không chỉ là màu sắc. Sức mạnh thực sự nằm ở khả năng xây dựng Layout (Flex/Grid) siêu tốc và hỗ trợ thiết kế đa màn hình (Responsive Design) trực tiếp trên file HTML của Vue.</p>
+                <h2 class="text-3xl font-bold text-cyan-400"><i class="fa-brands fa-css3-alt"></i> 9. Tailwind CSS: Toàn tập Utility-First</h2>
+                <p class="text-slate-400">Tailwind CSS không chỉ giúp tạo Layout (Flex/Grid). Sức mạnh của nó là khả năng style toàn bộ UI (Trạng thái, Typo, Bóng) ngay trên HTML mà không cần mở file `.css`.</p>
             </div>
 
-            <!-- Flexbox Section -->
+            <!-- Typography & States Section -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="glass-panel p-6 rounded-xl space-y-6">
-                    <h3 class="font-bold border-b border-slate-700 pb-2 text-cyan-200"><i class="fa-solid fa-arrows-left-right"></i> 9.1. Flexbox Layout</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <p class="text-sm text-slate-400 mb-2">Trục dọc chính (<code>justify-...</code>):</p>
-                            <div class="flex flex-wrap gap-2">
-                                <button @click="flexJustify = 'justify-start'" :class="flexJustify==='justify-start' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">start</button>
-                                <button @click="flexJustify = 'justify-center'" :class="flexJustify==='justify-center' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">center</button>
-                                <button @click="flexJustify = 'justify-end'" :class="flexJustify==='justify-end' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">end</button>
-                                <button @click="flexJustify = 'justify-between'" :class="flexJustify==='justify-between' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">between</button>
-                            </div>
-                        </div>
-                        <div>
-                            <p class="text-sm text-slate-400 mb-2">Trục vuông góc (<code>items-...</code>):</p>
-                            <div class="flex flex-wrap gap-2">
-                                <button @click="flexAlign = 'items-start'" :class="flexAlign==='items-start' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">start</button>
-                                <button @click="flexAlign = 'items-center'" :class="flexAlign==='items-center' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">center</button>
-                                <button @click="flexAlign = 'items-end'" :class="flexAlign==='items-end' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">end</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-4 bg-slate-900 border border-slate-700 rounded h-40 overflow-hidden">
-                        <div :class="['flex', flexJustify, flexAlign, 'h-full bg-slate-800 border border-dashed border-slate-600 gap-2 p-2 transition-all duration-300']">
-                            <div class="w-12 h-12 bg-rose-500 rounded-lg flex items-center justify-center font-bold text-white shadow">1</div>
-                            <div class="w-16 h-16 bg-blue-500 rounded-lg flex items-center justify-center font-bold text-white shadow">2</div>
-                            <div class="w-12 h-12 bg-emerald-500 rounded-lg flex items-center justify-center font-bold text-white shadow">3</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="relative group h-full">
-                    <button @click="store.explainCode($refs.flexCode.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
-                    </button>
-                    <pre ref="flexCode" class="code-block h-full pt-12">
-<span class="text-slate-500">&lt;!-- Flexbox Container --&gt;</span>
-&lt;div class="<span class="text-cyan-400">flex {{ flexJustify }} {{ flexAlign }} gap-2</span> h-full"&gt;
-  <span class="text-slate-500">&lt;!-- Flex Items --&gt;</span>
-  &lt;div class="w-12 h-12 bg-rose-500 rounded"&gt;1&lt;/div&gt;
-  &lt;div class="w-16 h-16 bg-blue-500 rounded"&gt;2&lt;/div&gt;
-  &lt;div class="w-12 h-12 bg-emerald-500 rounded"&gt;3&lt;/div&gt;
-&lt;/div&gt;</pre>
-                </div>
-            </div>
-
-            <!-- CSS Grid Section -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="glass-panel p-6 rounded-xl space-y-6">
-                    <h3 class="font-bold border-b border-slate-700 pb-2 text-cyan-200"><i class="fa-solid fa-border-all"></i> 9.2. CSS Grid Layout</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <p class="text-sm text-slate-400 mb-2">Số cột hiển thị (<code>grid-cols-...</code>):</p>
-                            <div class="flex gap-2">
-                                <button @click="gridCols = 'grid-cols-2'" :class="gridCols==='grid-cols-2' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">2 cột</button>
-                                <button @click="gridCols = 'grid-cols-3'" :class="gridCols==='grid-cols-3' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">3 cột</button>
-                                <button @click="gridCols = 'grid-cols-4'" :class="gridCols==='grid-cols-4' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">4 cột</button>
-                            </div>
-                        </div>
-                        <div>
-                            <p class="text-sm text-slate-400 mb-2">Khoảng cách các cột (<code>gap-...</code>):</p>
-                            <div class="flex gap-2">
-                                <button @click="gridGap = 'gap-2'" :class="gridGap==='gap-2' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">gap-2</button>
-                                <button @click="gridGap = 'gap-4'" :class="gridGap==='gap-4' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">gap-4</button>
-                                <button @click="gridGap = 'gap-8'" :class="gridGap==='gap-8' ? 'bg-cyan-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'" class="px-3 py-1 rounded text-xs transition">gap-8</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-4 bg-slate-900 border border-slate-700 rounded h-40">
-                        <div :class="['grid', gridCols, gridGap, 'bg-slate-800 border border-dashed border-slate-600 p-2 transition-all duration-300']">
-                            <div v-for="i in 6" :key="i" class="bg-indigo-500 h-10 rounded-md flex items-center justify-center font-bold text-white shadow">{{ i }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="relative group h-full">
-                    <button @click="store.explainCode($refs.gridCode.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
-                    </button>
-                    <pre ref="gridCode" class="code-block h-full pt-12">
-<span class="text-slate-500">&lt;!-- CSS Grid Container --&gt;</span>
-&lt;div class="<span class="text-cyan-400">grid {{ gridCols }} {{ gridGap }}</span>"&gt;
-  <span class="text-slate-500">&lt;!-- Lặp 6 thẻ con --&gt;</span>
-  &lt;div class="bg-indigo-500 h-10 rounded"&gt;1&lt;/div&gt;
-  &lt;div class="bg-indigo-500 h-10 rounded"&gt;2&lt;/div&gt;
-  &lt;div class="bg-indigo-500 h-10 rounded"&gt;3&lt;/div&gt;
-  &lt;div class="bg-indigo-500 h-10 rounded"&gt;4&lt;/div&gt;
-  &lt;div class="bg-indigo-500 h-10 rounded"&gt;5&lt;/div&gt;
-  &lt;div class="bg-indigo-500 h-10 rounded"&gt;6&lt;/div&gt;
-&lt;/div&gt;</pre>
-                </div>
-            </div>
-
-            <!-- Responsive Section -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="glass-panel p-6 rounded-xl space-y-6">
-                    <h3 class="font-bold border-b border-slate-700 pb-2 text-cyan-200"><i class="fa-solid fa-mobile-screen-button"></i> 9.3. Responsive Design (Mobile-First)</h3>
-                    <p class="text-sm text-slate-300">Tailwind áp dụng mô hình Mobile-first. Luôn viết class mặc định cho điện thoại trước (ví dụ: <code>w-full</code>), sau đó dùng các tiền tố <code>sm:</code>, <code>md:</code>, <code>lg:</code> để đè lại class khi màn hình to lên.</p>
+                    <h3 class="font-bold border-b border-slate-700 pb-2 text-cyan-200"><i class="fa-solid fa-font"></i> 9.1. Typography & States (Hover, Focus)</h3>
                     
-                    <div class="p-4 bg-slate-900 border border-slate-700 rounded flex flex-col items-center justify-center overflow-hidden relative">
-                        <span class="absolute top-2 right-2 text-[10px] text-slate-500 border border-slate-700 px-1 rounded"><i class="fa-solid fa-up-right-and-down-left-from-center"></i> Resize Browser để thử</span>
-                        
-                        <div class="transition-all duration-500 flex items-center justify-center font-bold text-white shadow-lg rounded-xl mt-6
-                                    w-full h-16 bg-rose-500 text-sm content-before
-                                    sm:w-3/4 sm:h-20 sm:bg-orange-500 sm:text-base sm:content-sm
-                                    md:w-1/2 md:h-24 md:bg-blue-500 md:text-lg md:content-md
-                                    lg:w-1/3 lg:h-32 lg:bg-emerald-500 lg:text-xl lg:content-lg">
+                    <div class="space-y-6">
+                        <!-- Typography -->
+                        <div>
+                            <p class="text-sm text-slate-400 mb-2">Typography (Chữ & Khoảng cách):</p>
+                            <p class="text-3xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600 mb-2">TAILWIND</p>
+                            <p class="text-xs font-mono text-slate-500">Class: <code>text-3xl font-black tracking-widest</code></p>
                         </div>
                         
+                        <!-- States -->
+                        <div>
+                            <p class="text-sm text-slate-400 mb-3">States (Hover, Focus, Active):</p>
+                            <button class="bg-indigo-500 text-white font-semibold py-2 px-6 rounded-full 
+                                           hover:bg-indigo-600 hover:shadow-lg hover:-translate-y-1
+                                           focus:outline-none focus:ring-4 focus:ring-indigo-500/50
+                                           active:scale-95 transition-all duration-200">
+                                Nhấp, Di chuột, hoặc Focus (Tab)
+                            </button>
+                            <p class="text-xs font-mono text-slate-500 mt-3">Class: <code>hover:bg-indigo-600 focus:ring-4 active:scale-95</code></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative group h-full">
+                    <button @click="store.explainCode($refs.typoCode.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
+                    </button>
+                    <pre ref="typoCode" class="code-block h-full pt-12" v-pre>
+<span class="text-slate-500">&lt;!-- Nút bấm với đủ mọi trạng thái tương tác --&gt;</span>
+&lt;button class="
+  <span class="text-slate-500">/* Mặc định */</span>
+  <span class="text-cyan-400">bg-indigo-500 text-white rounded-full px-6 py-2 transition-all</span>
+  
+  <span class="text-slate-500">/* Khi di chuột vào (Hover): Đổi màu, nổi bóng, nhích lên */</span>
+  <span class="text-yellow-400">hover:</span>bg-indigo-600 <span class="text-yellow-400">hover:</span>shadow-lg <span class="text-yellow-400">hover:</span>-translate-y-1
+  
+  <span class="text-slate-500">/* Khi đang chọn bằng phím Tab (Focus): Hiện vòng sáng */</span>
+  <span class="text-yellow-400">focus:</span>outline-none <span class="text-yellow-400">focus:</span>ring-4 <span class="text-yellow-400">focus:</span>ring-indigo-500/50
+  
+  <span class="text-slate-500">/* Khi click giữ chuột (Active): Thu nhỏ lại tạo cảm giác lún */</span>
+  <span class="text-yellow-400">active:</span>scale-95
+"&gt;
+  Click Me
+&lt;/button&gt;</pre>
+                </div>
+            </div>
+
+            <!-- Flex & Grid Section (Compact) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-panel p-6 rounded-xl space-y-6">
+                    <h3 class="font-bold border-b border-slate-700 pb-2 text-cyan-200"><i class="fa-solid fa-border-all"></i> 9.2. Flexbox & Grid Tương tác</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm text-slate-400 mb-2">Flex Justify:</p>
+                            <div class="flex gap-2">
+                                <button @click="flexJustify = 'justify-start'" :class="flexJustify==='justify-start' ? 'bg-cyan-600' : 'bg-slate-700'" class="px-2 py-1 rounded text-xs text-white">start</button>
+                                <button @click="flexJustify = 'justify-center'" :class="flexJustify==='justify-center' ? 'bg-cyan-600' : 'bg-slate-700'" class="px-2 py-1 rounded text-xs text-white">center</button>
+                                <button @click="flexJustify = 'justify-between'" :class="flexJustify==='justify-between' ? 'bg-cyan-600' : 'bg-slate-700'" class="px-2 py-1 rounded text-xs text-white">between</button>
+                            </div>
+                        </div>
+                        <div class="p-2 bg-slate-900 border border-slate-700 rounded h-16">
+                            <div :class="['flex items-center h-full border border-dashed border-slate-600 p-1 transition-all duration-300', flexJustify]">
+                                <div class="w-8 h-8 bg-rose-500 rounded"></div><div class="w-8 h-8 bg-blue-500 rounded"></div><div class="w-8 h-8 bg-emerald-500 rounded"></div>
+                            </div>
                         <!-- Pseudo element để hiển thị text thay đổi bằng CSS dựa theo Media Query -->
                         <style>
                             .content-before::before { content: "Mobile (< 640px)"; }
@@ -847,28 +981,37 @@ const pageTitle = ref('Sản phẩm mới')
                             @media (min-width: 1024px) { .content-lg::before { content: "Desktop (lg: 1024px+)"; } }
                         </style>
                     </div>
+                    <pre class="code-block text-xs" v-pre>class="<span class="text-cyan-400">w-full bg-rose-500</span> <span class="text-yellow-400">sm:</span>w-3/4 <span class="text-yellow-400">md:</span>bg-blue-500 <span class="text-yellow-400">lg:</span>w-1/3"</pre>
                 </div>
-                <div class="relative group h-full">
-                    <button @click="store.explainCode($refs.resCode.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
-                    </button>
-                    <pre ref="resCode" class="code-block h-full pt-12">
-<span class="text-slate-500">&lt;!-- Khi màn hình càng lớn, class phía sau sẽ Ghi đè class trước --&gt;</span>
-&lt;div class="
-  <span class="text-slate-500">/* Kích thước Mặc định (Mobile): Rộng 100%, Nền đỏ */</span>
-  <span class="text-cyan-400">w-full h-16 bg-rose-500</span>
-  
-  <span class="text-slate-500">/* sm (>= 640px): Rộng 75%, Nền cam */</span>
-  <span class="text-yellow-400">sm:</span>w-3/4 <span class="text-yellow-400">sm:</span>h-20 <span class="text-yellow-400">sm:</span>bg-orange-500
-  
-  <span class="text-slate-500">/* md (>= 768px): Rộng 50%, Nền xanh dương */</span>
-  <span class="text-yellow-400">md:</span>w-1/2 <span class="text-yellow-400">md:</span>h-24 <span class="text-yellow-400">md:</span>bg-blue-500
-  
-  <span class="text-slate-500">/* lg (>= 1024px): Rộng 33.3%, Nền xanh lá */</span>
-  <span class="text-yellow-400">lg:</span>w-1/3 <span class="text-yellow-400">lg:</span>h-32 <span class="text-yellow-400">lg:</span>bg-emerald-500
-"&gt;
-  Responsive Box
-&lt;/div&gt;</pre>
+            </div>
+
+            <!-- CSS-first Setup Section cho Dự án thật -->
+            <div class="grid grid-cols-1 gap-6 mt-2">
+                <div class="glass-panel p-6 rounded-xl space-y-4 border border-cyan-900/50">
+                    <h3 class="font-bold border-b border-slate-700 pb-2 text-cyan-200"><i class="fa-solid fa-wrench"></i> 9.4. Cài đặt Tailwind v4 cho Dự án thật (Vue/Vite & Nuxt)</h3>
+                    <p class="text-sm text-slate-300">Từ Tailwind v4, kiến trúc đã chuyển sang <b>CSS-first</b> và sử dụng <b>Vite plugin</b>. Bạn không còn dùng <code>tailwind.config.js</code> hay cài đặt module <code>@nuxtjs/tailwindcss</code> cũ nữa.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-slate-900 p-4 rounded border border-slate-700 shadow-inner flex flex-col">
+                            <p class="text-xs text-slate-400 mb-2 font-bold uppercase">1. Cài đặt Packages</p>
+                            <p class="text-xs text-slate-500 mb-2 flex-1">Chỉ cần 2 package cốt lõi thông qua npm:</p>
+                            <code class="text-[11px] text-green-400 block bg-black p-2 rounded">npm install tailwindcss @tailwindcss/vite</code>
+                        </div>
+                        <div class="bg-slate-900 p-4 rounded border border-slate-700 shadow-inner flex flex-col">
+                            <p class="text-xs text-slate-400 mb-2 font-bold uppercase">2. Cấu hình Vite/Nuxt</p>
+                            <p class="text-xs text-slate-500 mb-2 flex-1">Kích hoạt plugin trong <code>vite.config.ts</code> (hoặc <code>nuxt.config.ts</code>):</p>
+                            <pre class="text-[10px] text-blue-300 bg-black p-2 rounded">import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
+  plugins: [ tailwindcss() ]
+})</pre>
+                        </div>
+                        <div class="bg-slate-900 p-4 rounded border border-slate-700 shadow-inner flex flex-col">
+                            <p class="text-xs text-slate-400 mb-2 font-bold uppercase">3. Import CSS-first</p>
+                            <p class="text-xs text-slate-500 mb-2 flex-1">Xóa các thẻ <code>@tailwind</code> cũ, chỉ dùng 1 dòng ở file CSS chính:</p>
+                            <code class="text-[11px] text-purple-400 block bg-black p-2 rounded">@import "tailwindcss";</code>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -877,29 +1020,235 @@ const pageTitle = ref('Sản phẩm mới')
     </script>
 
     <!-- ========================================== -->
-    <!-- 10. GEMINI AI QUIZ                          -->
+    <!-- 10. JS & TS ESSENTIALS                     -->
+    <!-- ========================================== -->
+    <script type="text/x-template" id="js-ts-template">
+        <div class="max-w-6xl mx-auto space-y-12">
+            <div class="space-y-2">
+                <h2 class="text-3xl font-bold text-ts"><i class="fa-brands fa-js"></i> 10. JS & TS Essentials cho Vue/Nuxt</h2>
+                <p class="text-slate-400">Những khái niệm Javascript ES6+ cốt lõi quyết định 80% khả năng viết code Vue/Nuxt sạch đẹp của bạn.</p>
+            </div>
+
+            <!-- 10.1 Destructuring & Spread -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-panel p-6 rounded-xl space-y-6">
+                    <h3 class="font-bold border-b border-slate-700 pb-2 text-ts"><i class="fa-solid fa-box-open"></i> 10.1. Destructuring & Spread Operator</h3>
+                    <p class="text-sm text-slate-300"><b>Destructuring</b> giúp bóc tách object/array để lấy biến nhanh (dùng nhiều khi nhận Props). <b>Spread (<code>...</code>)</b> giúp copy object/array mà không bị dính "tham chiếu" bộ nhớ.</p>
+                    
+                    <div class="bg-slate-900 p-4 rounded border border-slate-700 space-y-4">
+                        <div class="text-sm">
+                            <span class="text-slate-400">Original Object:</span>
+                            <code class="block mt-1 text-green-400">{ name: 'Vue', version: 3 }</code>
+                        </div>
+                        <button @click="doSpread" class="w-full bg-slate-700 hover:bg-slate-600 text-white text-sm py-2 rounded transition">
+                            Tạo bản sao bằng Spread (...) và Đổi version
+                        </button>
+                        <div v-if="spreadResult" class="text-sm animate-[fadeIn_0.5s_ease-out]">
+                            <span class="text-slate-400">Cloned Object (Bản sao mới):</span>
+                            <code class="block mt-1 text-blue-400">{{ spreadResult }}</code>
+                            <p class="text-xs text-green-500 mt-2"><i class="fa-solid fa-check"></i> Original không bị ảnh hưởng!</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="relative group h-full">
+                    <button @click="store.explainCode($refs.jsCode1.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
+                    </button>
+                    <pre ref="jsCode1" class="code-block h-full pt-12" v-pre>
+<span class="text-slate-500">// 1. Destructuring (Bóc tách Object)</span>
+const user = { name: 'Nuxt', role: 'Framework' }
+<span class="text-ts">const { name, role } = user</span>
+console.log(name) <span class="text-slate-500">// Output: 'Nuxt'</span>
+
+<span class="text-slate-500">// 2. Spread Operator (...) (Copy an toàn)</span>
+const original = { name: 'Vue', version: 3 }
+
+<span class="text-slate-500">// ❌ SAI: const clone = original (Đổi clone là original đổi theo)</span>
+<span class="text-slate-500">// ✅ ĐÚNG: Dùng spread tạo bản sao độc lập</span>
+<span class="text-ts">const clone = { ...original, version: 4 }</span></pre>
+                </div>
+            </div>
+
+            <!-- 10.2 Array & Object Methods -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-panel p-6 rounded-xl space-y-6">
+                    <h3 class="font-bold border-b border-slate-700 pb-2 text-ts"><i class="fa-solid fa-layer-group"></i> 10.2. Sức mạnh xử lý Mảng & Object</h3>
+                    <p class="text-sm text-slate-300">Vue thường render danh sách từ Mảng hoặc bóc tách dữ liệu từ Object. Bạn <b>bắt buộc phải thuộc lòng</b> các hàm này.</p>
+                    
+                    <div class="bg-slate-900 p-4 rounded border border-slate-700 text-sm space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+                            <span class="text-slate-400">Data gốc:</span>
+                            <code>[{name: 'Vue', age: 10}, {name: 'Nuxt', age: 4}]</code>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-2">
+                            <button @click="testMap" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded transition text-blue-300">.map() (Tạo mảng tên)</button>
+                            <button @click="testFilter" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded transition text-green-300">.filter() (age > 5)</button>
+                            <button @click="testReduce" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded transition text-yellow-300">.reduce() (Tổng tuổi)</button>
+                            <button @click="testFind" class="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded transition text-purple-300">.find() (Tìm Nuxt)</button>
+                        </div>
+                        
+                        <div class="min-h-[40px] flex items-center bg-slate-800 p-2 rounded text-white font-mono break-all">
+                            => {{ arrayOutput }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="relative group h-full">
+                    <button @click="store.explainCode($refs.jsCode2.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
+                    </button>
+                    <pre ref="jsCode2" class="code-block h-full pt-12" v-pre>
+const users = [{id: 1, name: 'Vue', age: 10}, {id: 2, name: 'Nuxt', age: 4}]
+
+<span class="text-slate-500">// MẢNG (ARRAY) ----------------------------</span>
+<span class="text-slate-500">// .map: Duyệt qua mảng để biến đổi thành mảng mới</span>
+const names = users.<span class="text-ts">map</span>(u => u.name) <span class="text-slate-500">// ['Vue', 'Nuxt']</span>
+
+<span class="text-slate-500">// .reduce: Gom mảng lại thành 1 giá trị (Ví dụ tính tổng)</span>
+const totalAge = users.<span class="text-ts">reduce</span>((sum, u) => sum + u.age, 0) <span class="text-slate-500">// 14</span>
+
+<span class="text-slate-500">// .find: Trả về 1 object đầu tiên thỏa mãn điều kiện</span>
+const nuxt = users.<span class="text-ts">find</span>(u => u.name === 'Nuxt') <span class="text-slate-500">// {id: 2...}</span>
+
+<span class="text-slate-500">// ĐỐI TƯỢNG (OBJECT) ----------------------</span>
+const obj = { framework: 'Vue', isAwesome: true }
+Object.<span class="text-ts">keys</span>(obj)   <span class="text-slate-500">// ['framework', 'isAwesome']</span>
+Object.<span class="text-ts">values</span>(obj) <span class="text-slate-500">// ['Vue', true]</span>
+Object.<span class="text-ts">entries</span>(obj)<span class="text-slate-500">// [['framework', 'Vue'], ['isAwesome', true]]</span></pre>
+                </div>
+            </div>
+
+            <!-- 10.3 Async Evolution -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-panel p-6 rounded-xl space-y-6">
+                    <h3 class="font-bold border-b border-slate-700 pb-2 text-ts"><i class="fa-solid fa-timeline"></i> 10.3. Tiến hóa của Bất đồng bộ (Async JS)</h3>
+                    <p class="text-sm text-slate-300">Gọi API (fetch data) là tác vụ tốn thời gian. Bạn không thể bắt app "đứng hình" chờ. JS phải xử lý nó dưới nền (Bất đồng bộ).</p>
+                    
+                    <div class="bg-black p-4 rounded-lg font-mono text-xs text-slate-300 relative h-64 overflow-y-auto shadow-inner border border-slate-800">
+                        <div class="absolute top-2 right-2 text-[10px] text-slate-600 uppercase">Console Simulator</div>
+                        <div v-for="(log, idx) in asyncLogs" :key="idx" class="mb-1" :class="log.color">
+                            <span class="text-slate-600 mr-2">></span> {{ log.text }}
+                        </div>
+                        <div v-if="isAsyncRunning" class="text-yellow-500 mt-2 animate-pulse">_</div>
+                    </div>
+                    
+                    <button @click="runAsyncDemo" :disabled="isAsyncRunning" class="w-full bg-ts hover:bg-blue-500 text-white font-bold py-3 rounded transition disabled:opacity-50 flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-play"></i> Xem mô phỏng gọi API
+                    </button>
+                </div>
+                
+                <div class="relative group h-full">
+                    <button @click="store.explainCode($refs.jsCode3.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
+                    </button>
+                    <pre ref="jsCode3" class="code-block h-full pt-12" v-pre>
+<span class="text-slate-500">// 1. THẢM HỌA: Callback Hell (Kim tự tháp của sự hủy diệt)</span>
+api1((res1) => {
+  api2(res1, (res2) => {
+    api3(res2, (res3) => {  <span class="text-slate-500">&lt;-- Code thụt lùi vào mút chỉ, cực khó đọc</span>
+      console.log('Xong!')
+    })
+  })
+})
+
+<span class="text-slate-500">// 2. ĐỠ HƠN: Promise (Giải quyết Callback Hell, nhưng bị Promise Hell)</span>
+api1()
+  .<span class="text-ts">then</span>(res1 => api2(res1))
+  .<span class="text-ts">then</span>(res2 => api3(res2))
+  .<span class="text-ts">then</span>(res3 => console.log('Xong!'))
+  .<span class="text-ts">catch</span>(err => console.error('Lỗi')) <span class="text-slate-500">&lt;-- Dây chuyền dằng dặc</span>
+
+<span class="text-slate-500">// 3. HOÀN HẢO: Async / Await (Cứu tinh từ ES8)</span>
+<span class="text-ts">async</span> function getData() {
+  <span class="text-ts">try</span> {
+    <span class="text-slate-500">// Code "phẳng" lì, trông như chạy tuần tự đồng bộ</span>
+    const res1 = <span class="text-ts">await</span> api1()
+    const res2 = <span class="text-ts">await</span> api2(res1)
+    console.log('Xong!')
+  } <span class="text-ts">catch</span>(err) {
+    console.error('Lỗi', err)
+  }
+}</pre>
+                </div>
+            </div>
+
+            <!-- 10.4 TypeScript Basic -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-panel p-6 rounded-xl space-y-6">
+                    <h3 class="font-bold border-b border-slate-700 pb-2 text-ts"><i class="fa-brands fa-dochub"></i> 10.4. TypeScript: Kỷ luật là Tự do</h3>
+                    <p class="text-sm text-slate-300">Nuxt 4 và Vue 3 được sinh ra để dành cho TypeScript. TypeScript thêm "Kiểu dữ liệu" (Interface) giúp gạch chân đỏ báo lỗi ngay khi bạn gõ phím.</p>
+                    
+                    <div class="bg-slate-900 p-4 rounded border border-slate-700 text-sm">
+                        <p class="text-yellow-400 mb-2"><i class="fa-solid fa-triangle-exclamation"></i> Lỗi "kinh điển" trong JS thuần:</p>
+                        <code class="block text-red-400 mb-4 bg-black p-2 rounded">
+                            const user = { name: "John" }<br>
+                            console.log(user.age.toString()) <span class="text-slate-500">// JS không thèm báo lỗi, nhưng chạy là sập App (Crash)!</span>
+                        </code>
+                        <p class="text-green-400"><i class="fa-solid fa-check"></i> Cứu tinh TypeScript:</p>
+                        <p class="text-slate-300 mt-1">Ép buộc bạn phải khai báo <b>Interface</b> cho biến `user`. Nếu bạn gọi `user.age`, Editor (VS Code) sẽ <b>báo lỗi đỏ lòm ngay lập tức</b> vì `age` chưa được khai báo.</p>
+                    </div>
+                </div>
+                
+                <div class="relative group h-full">
+                    <button @click="store.explainCode($refs.tsCode.innerText)" class="absolute top-3 right-3 bg-purple-600/80 hover:bg-purple-500 border border-purple-400 text-xs px-3 py-1.5 rounded text-white transition shadow-lg flex items-center gap-2 z-10 opacity-0 group-hover:opacity-100 backdrop-blur-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ Giải thích Code
+                    </button>
+                    <pre ref="tsCode" class="code-block h-full pt-12" v-pre>
+<span class="text-slate-500">&lt;script setup lang="ts"&gt;</span>
+import { ref } from 'vue'
+
+<span class="text-slate-500">// 1. Khai báo quy tắc cho Object (Interface)</span>
+<span class="text-ts">interface</span> User {
+  name: string
+  age?: number <span class="text-slate-500">// Dấu ? nghĩa là có thể không có (optional)</span>
+}
+
+<span class="text-slate-500">// 2. Generic Types &lt;T&gt; cho Biến phản ứng của Vue</span>
+<span class="text-slate-500">// Báo cho Vue biết: Mảng này CHỈ được phép chứa chuẩn User</span>
+const users = ref<span class="text-ts">&lt;User[]&gt;</span>([
+  { name: 'Vue' }, 
+  <span class="text-slate-500">// { name: 'React', age: 'Mười tuổi' } // ❌ BÁO LỖI NGAY vì age phải là số</span>
+])
+
+<span class="text-slate-500">// 3. Định nghĩa Props siêu chặt chẽ</span>
+const props = defineProps<span class="text-ts">&lt;{
+  title: string
+  items: User[]
+}&gt;</span>()
+<span class="text-slate-500">&lt;/script&gt;</span></pre>
+                </div>
+            </div>
+
+            <button @click="store.markCompleted('js-ts', 150)" class="bg-ts text-white font-bold px-6 py-2 rounded-lg hover:bg-blue-600 mt-6">Hoàn thành Bài 10 (+150 XP)</button>
+        </div>
+    </script>
+
+    <!-- ========================================== -->
+    <!-- 11. GEMINI AI QUIZ                          -->
     <!-- ========================================== -->
     <script type="text/x-template" id="ai-quiz-template">
         <div class="max-w-4xl mx-auto space-y-8">
             <h2 class="text-3xl font-bold text-gemini flex items-center gap-3">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> 10. ✨ AI Quiz: Thử thách Cuối khóa
+                <i class="fa-solid fa-wand-magic-sparkles"></i> 11. ✨ AI Quiz: Thử thách Cuối khóa
             </h2>
             <p class="text-slate-400 text-lg">Kết nối với <b>Gemini AI</b> tạo câu hỏi trắc nghiệm ngẫu nhiên. Trả lời đúng để nhận <b>+200 XP</b>!</p>
             
             <div class="glass-panel p-8 rounded-xl border border-purple-500/30 shadow-[0_0_20px_rgba(139,92,246,0.15)]">
                 
                 <div v-if="!quizData && !isGenerating" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <button @click="generateQuiz('JavaScript ES6, Promises và TypeScript Interface')" class="bg-slate-800 hover:bg-slate-700 border border-ts text-ts font-bold py-4 rounded-lg transition flex flex-col items-center gap-2">
+                        <i class="fa-brands fa-js text-3xl"></i> Câu hỏi JS / TS
+                    </button>
                     <button @click="generateQuiz('Vue 3 Components và Composition API')" class="bg-slate-800 hover:bg-slate-700 border border-vue text-vue font-bold py-4 rounded-lg transition flex flex-col items-center gap-2">
                         <i class="fa-brands fa-vuejs text-3xl"></i> Câu hỏi Vue 3
-                    </button>
-                    <button @click="generateQuiz('Kiến thức Tailwind CSS Utility First')" class="bg-slate-800 hover:bg-slate-700 border border-cyan-400 text-cyan-400 font-bold py-4 rounded-lg transition flex flex-col items-center gap-2">
-                        <i class="fa-brands fa-css3-alt text-3xl"></i> Câu hỏi Tailwind
                     </button>
                     <button @click="generateQuiz('Nuxt 4 SSR, Layouts, và Data Fetching')" class="bg-slate-800 hover:bg-slate-700 border border-nuxt text-nuxt font-bold py-4 rounded-lg transition flex flex-col items-center gap-2">
                         <i class="fa-solid fa-mountain-sun text-3xl"></i> Câu hỏi Nuxt 4
                     </button>
-                    <button @click="generateQuiz('Pinia storeToRefs và Quản lý trạng thái')" class="bg-slate-800 hover:bg-slate-700 border border-pinia text-pinia font-bold py-4 rounded-lg transition flex flex-col items-center gap-2">
-                        <i class="fa-solid fa-store text-3xl"></i> Câu hỏi Pinia
+                    <button @click="generateQuiz('Kiến thức Tailwind CSS Utility First')" class="bg-slate-800 hover:bg-slate-700 border border-cyan-400 text-cyan-400 font-bold py-4 rounded-lg transition flex flex-col items-center gap-2">
+                        <i class="fa-brands fa-css3-alt text-3xl"></i> Câu hỏi Tailwind
                     </button>
                 </div>
 
@@ -954,8 +1303,8 @@ const pageTitle = ref('Sản phẩm mới')
         const { createApp, ref, computed, watch, onMounted, onUnmounted } = Vue;
         const { createPinia, defineStore, storeToRefs } = Pinia;
 
-        const apiKey = ""; 
-        
+        const apiKey = "AIzaSyAR0qJueWICWOec7H9jsexeoVttfULqkuA";
+
         async function fetchGeminiText(prompt, systemInstruction) {
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
             const payload = { contents: [{ parts: [{ text: prompt }] }], systemInstruction: { parts: [{ text: systemInstruction }] } };
@@ -1000,44 +1349,42 @@ const pageTitle = ref('Sản phẩm mới')
             const lsStr = localStorage.getItem('vueNuxtHubState');
             const savedState = lsStr ? JSON.parse(lsStr) : {};
 
-            const exp = ref(savedState.exp || 0); 
+            const exp = ref(savedState.exp || 0);
             const completed = ref(savedState.completed || []);
             const coins = ref(savedState.coins || 0);
-            
+
             // --- TÍNH NĂNG ĐIỂM DANH & KHÔI PHỤC (STREAK) ---
             const streak = ref(savedState.streak || 0);
             const lastCheckIn = ref(savedState.lastCheckIn || null);
             const missedDays = ref(0);
-            const currentDate = ref(new Date()); 
-            
+            const currentDate = ref(new Date());
+
             const getStrDate = (dateObj) => {
                 const d = new Date(dateObj);
                 return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
             };
-            
+
             const todayStr = computed(() => getStrDate(currentDate.value));
 
-            // Tính toán số ngày bỏ lỡ khi ứng dụng (hoặc ngày) thay đổi
             watch(todayStr, (todayValue) => {
                 if (lastCheckIn.value) {
                     const lastDate = new Date(lastCheckIn.value);
                     const todayDate = new Date(todayValue);
                     const diffTime = Math.abs(todayDate - lastDate);
                     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                    
+
                     if (diffDays > 1) {
-                        missedDays.value = diffDays - 1; // Số ngày thực sự bỏ lỡ
+                        missedDays.value = diffDays - 1;
                     } else {
                         missedDays.value = 0;
                     }
                 }
             }, { immediate: true });
-            
+
             const needsRestore = computed(() => missedDays.value > 0);
-            const restoreCost = computed(() => missedDays.value * 10); // Phí phạt = 10 xu mỗi ngày bỏ lỡ
+            const restoreCost = computed(() => missedDays.value * 10);
             const canCheckIn = computed(() => lastCheckIn.value !== todayStr.value && !needsRestore.value);
-            
-            // Icon & Thưởng Xu
+
             const streakIcon = computed(() => {
                 if (streak.value === 0) return { icon: 'fa-regular fa-calendar-xmark', color: 'text-slate-500', name: 'Chưa bắt đầu' };
                 if (streak.value < 3) return { icon: 'fa-solid fa-seedling', color: 'text-green-400', name: 'Mầm non' };
@@ -1049,48 +1396,32 @@ const pageTitle = ref('Sản phẩm mới')
 
             const nextCoinReward = computed(() => {
                 const current = streak.value;
-                if (current === 0) return 1;
-                if (current === 1) return 2;
-                if (current === 2) return 3;
-                if (current === 3 || current === 4) return 5;
-                return 6;
+                if (current === 0) return 1; if (current === 1) return 2; if (current === 2) return 3;
+                if (current === 3 || current === 4) return 5; return 6;
             });
 
             function checkIn() {
                 if (!canCheckIn.value) return;
                 coins.value += nextCoinReward.value;
-                streak.value++; 
-                addExp(50);
+                streak.value++; addExp(50);
                 lastCheckIn.value = todayStr.value;
             }
 
             function restoreStreak() {
                 if (coins.value >= restoreCost.value) {
-                    coins.value -= restoreCost.value;
-                    missedDays.value = 0;
-                    // Chỉnh lastCheckIn về ngày hôm qua để có thể điểm danh bình thường
-                    const yesterday = new Date(currentDate.value);
-                    yesterday.setDate(yesterday.getDate() - 1);
+                    coins.value -= restoreCost.value; missedDays.value = 0;
+                    const yesterday = new Date(currentDate.value); yesterday.setDate(yesterday.getDate() - 1);
                     lastCheckIn.value = getStrDate(yesterday);
                 }
             }
 
             function checkInAfterBreak() {
-                streak.value = 1;
-                coins.value += 1;
-                addExp(50);
-                lastCheckIn.value = todayStr.value;
-                missedDays.value = 0;
+                streak.value = 1; coins.value += 1; addExp(50);
+                lastCheckIn.value = todayStr.value; missedDays.value = 0;
             }
 
-            // Test Tua thời gian
-            function simulateNextDay() {
-                const next = new Date(currentDate.value); next.setDate(next.getDate() + 1); currentDate.value = next;
-            }
-            function simulateMissDay() {
-                const next = new Date(currentDate.value); next.setDate(next.getDate() + 2); currentDate.value = next;
-            }
-            // ------------------------------------
+            function simulateNextDay() { const next = new Date(currentDate.value); next.setDate(next.getDate() + 1); currentDate.value = next; }
+            function simulateMissDay() { const next = new Date(currentDate.value); next.setDate(next.getDate() + 2); currentDate.value = next; }
 
             // SAVE LOCALSTORAGE TỰ ĐỘNG
             watch([exp, completed, coins, streak, lastCheckIn], () => {
@@ -1101,10 +1432,8 @@ const pageTitle = ref('Sản phẩm mới')
 
             const completedTasks = computed(() => completed.value.length);
             const level = computed(() => {
-                if (exp.value < 300) return 'Tân binh';
-                if (exp.value < 700) return 'Lập trình viên';
-                if (exp.value < 1200) return 'Chuyên gia Nuxt';
-                return 'Huyền thoại AI & Nuxt';
+                if (exp.value < 300) return 'Tân binh'; if (exp.value < 700) return 'Lập trình viên';
+                if (exp.value < 1200) return 'Chuyên gia Nuxt'; return 'Huyền thoại Web';
             });
 
             function addExp(amount) { exp.value += amount; }
@@ -1117,18 +1446,18 @@ const pageTitle = ref('Sản phẩm mới')
                 aiModalOpen.value = true; aiLoading.value = true; aiResponse.value = ''; aiTitle.value = '✨ AI đang phân tích code...';
                 try {
                     const prompt = `Giải thích đoạn code/vấn đề sau cho người mới học Web. Dùng HTML cơ bản (<p>, <b>, <ul>, <li>, <code>). Không dùng markdown (**, *, \`\`\`):\n\n${codeText}`;
-                    const sysInst = "Bạn là giảng viên Web (Vue/Nuxt/Tailwind). Giải thích ngắn gọn, đi thẳng vào vấn đề cốt lõi.";
+                    const sysInst = "Bạn là giảng viên Web (Vue/Nuxt/Tailwind/JS/TS). Giải thích ngắn gọn, đi thẳng vào vấn đề cốt lõi.";
                     aiResponse.value = await fetchGeminiText(prompt, sysInst);
                     aiTitle.value = '✨ Phân tích từ Trợ lý Gemini';
-                } catch (error) { aiResponse.value = `<span class="text-red-400">Lỗi: ${error.message}</span>`; aiTitle.value = '❌ Lỗi'; } 
+                } catch (error) { aiResponse.value = `<span class="text-red-400">Lỗi: ${error.message}</span>`; aiTitle.value = '❌ Lỗi'; }
                 finally { aiLoading.value = false; }
             }
-            
-            return { 
-                exp, completed, completedTasks, level, coins, addExp, markCompleted, 
+
+            return {
+                exp, completed, completedTasks, level, coins, addExp, markCompleted,
                 aiModalOpen, aiLoading, aiResponse, aiTitle, explainCode,
                 streak, canCheckIn, streakIcon, nextCoinReward, needsRestore, missedDays, restoreCost,
-                checkIn, restoreStreak, checkInAfterBreak, simulateNextDay, simulateMissDay 
+                checkIn, restoreStreak, checkInAfterBreak, simulateNextDay, simulateMissDay
             };
         });
 
@@ -1137,7 +1466,7 @@ const pageTitle = ref('Sản phẩm mới')
             template: '#vue-basic-template',
             setup() {
                 const store = useAppStore(); const newItem = ref(''); const items = ref(['Vue 3', 'Vite']);
-                const addItem = () => { if(newItem.value.trim()) { items.value.push(newItem.value.trim()); newItem.value = ''; } }
+                const addItem = () => { if (newItem.value.trim()) { items.value.push(newItem.value.trim()); newItem.value = ''; } }
                 const removeItem = (i) => items.value.splice(i, 1);
                 return { store, newItem, items, addItem, removeItem };
             }
@@ -1167,13 +1496,68 @@ const pageTitle = ref('Sản phẩm mới')
         const VueRouterTab = {
             template: '#vue-router-template',
             setup() {
-                const store = useAppStore(); const isLoggedIn = ref(false); const currentPath = ref('/'); const routerError = ref('');
+                const store = useAppStore();
+
+                // Trạng thái giả lập
+                const isLoggedIn = ref(false);
+                const role = ref('user');
+                const currentPath = ref('/');
+                const routerError = ref('');
+
+                // Kết quả render
+                const routeParams = ref({});
+                const matchedComponent = ref('Home');
+
+                // Hàm điều hướng chính (Giả lập Router)
                 const navigate = (path) => {
                     routerError.value = '';
-                    if (path === '/dashboard' && !isLoggedIn.value) { routerError.value = "Bạn phải Đăng nhập mới có thể truy cập Dashboard (Requires Auth)!"; return; }
+                    routeParams.value = {};
+
+                    // --- 1. Giả lập Middleware (Guards) ---
+                    if (path.startsWith('/admin')) {
+                        if (!isLoggedIn.value) {
+                            routerError.value = "Lỗi 401: Yêu cầu Đăng nhập!";
+                            return; // Chặn, không đổi URL
+                        }
+                        if (role.value !== 'admin') {
+                            routerError.value = "Lỗi 403: Cần quyền Admin!";
+                            return; // Chặn
+                        }
+                        matchedComponent.value = 'AdminPanel';
+                        currentPath.value = path;
+                        return;
+                    }
+
+                    // --- 2. Giả lập Khớp Route (Route Matching) ---
                     currentPath.value = path;
+
+                    if (path === '/') {
+                        matchedComponent.value = 'Home';
+                    }
+                    else if (path.startsWith('/users/')) {
+                        matchedComponent.value = 'UserProfile';
+                        routeParams.value = { id: path.split('/')[2] }; // Cắt chuỗi lấy ID
+                    }
+                    else if (path.startsWith('/post/')) {
+                        matchedComponent.value = 'PostDetail';
+                        routeParams.value = { slug: path.split('/')[2] }; // Cắt chuỗi lấy Slug
+                    }
+                    // --- 3. Giả lập Catch-all (404 Not Found) ---
+                    else {
+                        matchedComponent.value = 'NotFound';
+                    }
                 };
-                return { store, isLoggedIn, currentPath, routerError, navigate };
+
+                // Theo dõi khi đổi tài khoản (Giả lập việc reset trang nếu mất quyền)
+                watch([isLoggedIn, role], () => {
+                    if (currentPath.value === '/admin') {
+                        if (!isLoggedIn.value || role.value !== 'admin') {
+                            navigate('/'); // Đá về trang chủ nếu mất quyền
+                        }
+                    }
+                });
+
+                return { store, isLoggedIn, role, currentPath, routerError, routeParams, matchedComponent, navigate };
             }
         };
 
@@ -1183,7 +1567,7 @@ const pageTitle = ref('Sản phẩm mới')
             template: '#nuxt-routing-template',
             setup() {
                 const route = ref('/');
-                const getRouteTitle = (r) => { if(r === '/') return 'Trang Chủ'; if(r === '/about') return 'Về chúng tôi'; return 'Người dùng #123'; }
+                const getRouteTitle = (r) => { if (r === '/') return 'Trang Chủ'; if (r === '/about') return 'Về chúng tôi'; return 'Người dùng #123'; }
                 return { store: useAppStore(), route, getRouteTitle };
             }
         };
@@ -1194,7 +1578,7 @@ const pageTitle = ref('Sản phẩm mới')
                 const pending = ref(false); const data = ref(null); const error = ref(null);
                 const fetchData = (shouldFail) => {
                     pending.value = true; data.value = null; error.value = null;
-                    setTimeout(() => { pending.value = false; if(shouldFail) { error.value = { message: '500 Internal Server Error' }; } else { data.value = [{ id: 1, name: 'Tài liệu Vue', role: 'Official' }, { id: 2, name: 'Tài liệu Nuxt', role: 'Official' }]; } }, 1000);
+                    setTimeout(() => { pending.value = false; if (shouldFail) { error.value = { message: '500 Internal Server Error' }; } else { data.value = [{ id: 1, name: 'Tài liệu Vue', role: 'Official' }, { id: 2, name: 'Tài liệu Nuxt', role: 'Official' }]; } }, 1000);
                 }
                 return { store: useAppStore(), pending, data, error, fetchData };
             }
@@ -1214,15 +1598,61 @@ const pageTitle = ref('Sản phẩm mới')
             template: '#tailwind-template',
             setup() {
                 const store = useAppStore();
-                // Flexbox
-                const flexJustify = ref('justify-between');
-                const flexAlign = ref('items-center');
-                
-                // Grid
-                const gridCols = ref('grid-cols-3');
-                const gridGap = ref('gap-4');
-                
+                const flexJustify = ref('justify-between'); const flexAlign = ref('items-center');
+                const gridCols = ref('grid-cols-3'); const gridGap = ref('gap-4');
                 return { store, flexJustify, flexAlign, gridCols, gridGap };
+            }
+        }
+
+        const JsTsTab = {
+            template: '#js-ts-template',
+            setup() {
+                const store = useAppStore();
+
+                // 10.1 Spread demo
+                const spreadResult = ref(null);
+                const doSpread = () => { spreadResult.value = "{ name: 'Vue', version: 4 }"; }
+
+                // 10.2 Array Method Demo
+                const users = [{ id: 1, name: 'Vue', age: 10 }, { id: 2, name: 'Nuxt', age: 4 }, { id: 3, name: 'Pinia', age: 2 }];
+                const arrayOutput = ref('Bấm nút để xem kết quả');
+
+                const testMap = () => { arrayOutput.value = JSON.stringify(users.map(u => u.name)); }
+                const testFilter = () => { arrayOutput.value = JSON.stringify(users.filter(u => u.age > 5)); }
+                const testReduce = () => { arrayOutput.value = `Tổng tuổi: ${users.reduce((sum, u) => sum + u.age, 0)}`; }
+                const testFind = () => { arrayOutput.value = JSON.stringify(users.find(u => u.name === 'Nuxt')); }
+
+                // 10.3 Async Simulator
+                const asyncLogs = ref([]);
+                const isAsyncRunning = ref(false);
+
+                const pushLog = (text, color = 'text-slate-300') => {
+                    asyncLogs.value.push({ text, color });
+                };
+
+                const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+                const runAsyncDemo = async () => {
+                    isAsyncRunning.value = true;
+                    asyncLogs.value = [];
+
+                    pushLog('Khởi tạo Async/Await...', 'text-blue-400');
+                    await sleep(800);
+
+                    pushLog('Đang chờ lấy danh sách bài viết (await api1)...', 'text-yellow-400');
+                    await sleep(1500);
+                    pushLog('[OK] Lấy bài viết thành công!', 'text-green-400');
+
+                    pushLog('Đang chờ lấy bình luận của bài viết (await api2)...', 'text-yellow-400');
+                    await sleep(1200);
+                    pushLog('[OK] Lấy bình luận thành công!', 'text-green-400');
+
+                    pushLog('App không bị đóng băng trong lúc chờ mạng! Code viết rất gọn gàng phẳng phiu.', 'text-ts font-bold');
+
+                    isAsyncRunning.value = false;
+                }
+
+                return { store, spreadResult, doSpread, arrayOutput, testMap, testFilter, testReduce, testFind, asyncLogs, isAsyncRunning, runAsyncDemo };
             }
         }
 
@@ -1233,13 +1663,13 @@ const pageTitle = ref('Sản phẩm mới')
                 const hasAnswered = ref(false); const isCorrect = ref(false); const selectedIndex = ref(null);
                 async function generateQuiz(topic) {
                     isGenerating.value = true; quizData.value = null; hasAnswered.value = false; selectedIndex.value = null;
-                    try { quizData.value = await fetchGeminiJson(`Tạo 1 câu hỏi trắc nghiệm độ khó trung bình về: ${topic}.`, "Bạn là hệ thống thi lập trình Web."); } 
+                    try { quizData.value = await fetchGeminiJson(`Tạo 1 câu hỏi trắc nghiệm độ khó trung bình về: ${topic}.`, "Bạn là hệ thống thi lập trình Web."); }
                     catch (error) { alert("Lỗi kết nối Gemini AI."); } finally { isGenerating.value = false; }
                 }
                 function selectAnswer(index) {
-                    if (hasAnswered.value) return; 
+                    if (hasAnswered.value) return;
                     selectedIndex.value = index; hasAnswered.value = true; isCorrect.value = (index === quizData.value.correctIndex);
-                    if (isCorrect.value) store.addExp(200); 
+                    if (isCorrect.value) store.addExp(200);
                 }
                 function resetQuiz() { quizData.value = null; hasAnswered.value = false; selectedIndex.value = null; }
                 return { store, isGenerating, quizData, hasAnswered, isCorrect, selectedIndex, generateQuiz, selectAnswer, resetQuiz };
@@ -1251,7 +1681,7 @@ const pageTitle = ref('Sản phẩm mới')
             setup() {
                 const store = useAppStore();
                 const activeTab = ref('vue-basic');
-                
+
                 const tabs = [
                     { id: 'vue-basic', name: '1. Vue: API Styles & Directives', icon: 'fa-brands fa-vuejs', color: 'text-vue' },
                     { id: 'vue-components', name: '2. Vue: Props, Emits & Slots', icon: 'fa-solid fa-cubes', color: 'text-vue' },
@@ -1261,15 +1691,17 @@ const pageTitle = ref('Sản phẩm mới')
                     { id: 'nuxt-routing', name: '6. Nuxt: Layouts & Route', icon: 'fa-solid fa-folder-tree', color: 'text-nuxt' },
                     { id: 'nuxt-data', name: '7. Nuxt: SSR Data Fetch', icon: 'fa-solid fa-server', color: 'text-nuxt' },
                     { id: 'nuxt-seo', name: '8. Nuxt: SEO & Head', icon: 'fa-solid fa-magnifying-glass', color: 'text-nuxt' },
-                    { id: 'tailwind', name: '9. Tailwind: Utilities', icon: 'fa-brands fa-css3-alt', color: 'text-cyan-400' },
-                    { id: 'ai-quiz', name: '10. ✨ AI Quiz', icon: 'fa-solid fa-wand-magic-sparkles', color: 'text-gemini' }
+                    { id: 'tailwind', name: '9. Tailwind: Style Toàn tập', icon: 'fa-brands fa-css3-alt', color: 'text-cyan-400' },
+                    { id: 'js-ts', name: '10. JS/TS Essentials', icon: 'fa-brands fa-js', color: 'text-ts' },
+                    { id: 'ai-quiz', name: '11. ✨ AI Quiz', icon: 'fa-solid fa-wand-magic-sparkles', color: 'text-gemini' }
                 ];
 
                 const activeComponent = computed(() => {
                     const map = {
                         'vue-basic': 'VueBasic', 'vue-components': 'VueComponents', 'vue-adv': 'VueAdv',
                         'vue-router': 'VueRouterTab', 'pinia': 'PiniaTab', 'nuxt-routing': 'NuxtRouting',
-                        'nuxt-data': 'NuxtData', 'nuxt-seo': 'NuxtSeo', 'tailwind': 'TailwindTab', 'ai-quiz': 'AiQuiz'
+                        'nuxt-data': 'NuxtData', 'nuxt-seo': 'NuxtSeo', 'tailwind': 'TailwindTab',
+                        'js-ts': 'JsTsTab', 'ai-quiz': 'AiQuiz'
                     };
                     return map[activeTab.value] || 'VueBasic';
                 });
@@ -1288,8 +1720,10 @@ const pageTitle = ref('Sản phẩm mới')
         app.component('NuxtData', NuxtData);
         app.component('NuxtSeo', NuxtSeo);
         app.component('TailwindTab', TailwindTab);
-        app.component('AiQuiz', AiQuiz); 
+        app.component('JsTsTab', JsTsTab);
+        app.component('AiQuiz', AiQuiz);
         app.mount('#app');
     </script>
 </body>
+
 </html>
